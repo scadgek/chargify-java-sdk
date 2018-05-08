@@ -30,6 +30,13 @@
       </list>
     </option>
   </component>
+  <component name="ProjectDictionaryState">
+    <dictionary name="project">
+      <words>
+        <w>chargify</w>
+      </words>
+    </dictionary>
+  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/chargify-java-sdk.iml" filepath="$PROJECT_DIR$/chargify-java-sdk.iml" />
