@@ -207,4 +207,25 @@ public class SubscriptionInput
     this.reference = reference;
     return this;
   }
+
+  @Override
+  public String toString()
+  {
+    return "SubscriptionInput{" +
+            "productHandle='" + productHandle + '\'' +
+            ", productId='" + productId + '\'' +
+            ", customerId='" + customerId + '\'' +
+            ", customerReference='" + customerReference + '\'' +
+            ", customerAttributes=" + customerAttributes +
+            ", paymentProfileId='" + paymentProfileId + '\'' +
+            ", cancellationMessage='" + cancellationMessage + '\'' +
+            ", nextBillingAt='" + nextBillingAt + '\'' +
+            ", vatNumber='" + vatNumber + '\'' +
+            ", couponCode='" + couponCode + '\'' +
+            ", paymentProfileAttributes=" + paymentProfileAttributes +
+            ", metafields=" + metafields +
+            ", reference='" + reference + '\'' +
+            ", components=" + components +
+            '}';
+  }
 }

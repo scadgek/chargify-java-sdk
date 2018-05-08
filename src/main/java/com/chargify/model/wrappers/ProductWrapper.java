@@ -19,4 +19,12 @@ public final class ProductWrapper
   {
     return product;
   }
+
+  @Override
+  public String toString()
+  {
+    return "ProductWrapper{" +
+            "product=" + product +
+            '}';
+  }
 }

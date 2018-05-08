@@ -1,5 +1,6 @@
 package com.chargify.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,6 +18,12 @@ public class ProductFamily
   @JsonProperty( "accounting_code" )
   private String accountingCode;
 
+  @JsonCreator
+  public ProductFamily( @JsonProperty( "name" ) String name )
+  {
+    this.name = name;
+  }
+
   public String getId()
   {
     return id;
@@ -30,11 +37,6 @@ public class ProductFamily
   public String getName()
   {
     return name;
-  }
-
-  public void setName( String name )
-  {
-    this.name = name;
   }
 
   public String getDescription()
@@ -70,7 +72,7 @@ public class ProductFamily
   @Override
   public String toString()
   {
-    return "ProductFamily{" +
+    return "productFamily{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", description='" + description + '\'' +
