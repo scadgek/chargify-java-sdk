@@ -6,7 +6,34 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
+    <packaging>jar</packaging>
+
+    <name>Chargify SDK for Java</name>
+    <description>This library is a convenient wrapper for Chargify REST API</description>
+    <url>https://reference.chargify.com/</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Sergey Chupov</name>
+            <email>scadgek@live.com</email>
+            <organization>Backendless</organization>
+            <organizationUrl>https://backendless.com/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/scadgek/chargify-java-sdk.git</connection>
+        <developerConnection>scm:git:ssh://github.com:scadgek/chargify-java-sdk.git</developerConnection>
+        <url>http://github.com/github.com/scadgek/chargify-java-sdk/tree/master</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
