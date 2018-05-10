@@ -1,13 +1,15 @@
 package com.chargify.api;
 
+import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.ProductFamily;
 import com.chargify.model.wrappers.ProductFamilyWrapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class ProductFamilies
 {
@@ -25,26 +27,40 @@ public final class ProductFamilies
             .getProductFamily();
   }
 
-  public ProductFamily read( String id )
+  public Optional<ProductFamily> read( String id )
   {
-    return chargify.httpClient()
-            .getForObject( "/product_families/" + id + ".json", ProductFamilyWrapper.class )
-            .getProductFamily();
+    try
+    {
+      return Optional.of( chargify.httpClient()
+                                  .getForObject( "/product_families/" + id + ".json", ProductFamilyWrapper.class )
+                                  .getProductFamily() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return Optional.empty();
+    }
   }
 
   public List<ProductFamily> readAll()
   {
-    return Stream.of( chargify.httpClient()
-                              .getForObject( "/product_families.json", ProductFamilyWrapper[].class ) )
+    return Arrays.stream( chargify.httpClient()
+                                  .getForObject( "/product_families.json", ProductFamilyWrapper[].class ) )
             .map( ProductFamilyWrapper::getProductFamily )
             .collect( Collectors.toList() );
   }
 
-  public ProductFamily archive( String id )
+  public Optional<ProductFamily> archive( String id )
   {
-    return chargify.httpClient()
-            .exchange( "/product_families/" + id + ".json", HttpMethod.DELETE, HttpEntity.EMPTY, ProductFamilyWrapper.class )
-            .getBody()
-            .getProductFamily();
+    try
+    {
+      return Optional.of( chargify.httpClient()
+                                  .exchange( "/product_families/" + id + ".json", HttpMethod.DELETE, HttpEntity.EMPTY, ProductFamilyWrapper.class )
+                                  .getBody()
+                                  .getProductFamily() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return Optional.empty();
+    }
   }
 }

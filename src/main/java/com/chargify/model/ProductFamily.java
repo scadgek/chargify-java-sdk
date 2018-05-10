@@ -72,7 +72,7 @@ public class ProductFamily
   @Override
   public String toString()
   {
-    return "productFamily{" +
+    return "productFamilies{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", description='" + description + '\'' +

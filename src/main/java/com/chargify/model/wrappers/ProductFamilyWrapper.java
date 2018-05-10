@@ -24,7 +24,7 @@ public final class ProductFamilyWrapper
   public String toString()
   {
     return "ProductFamilyWrapper{" +
-            "productFamily=" + productFamily +
+            "productFamilies=" + productFamily +
             '}';
   }
 }

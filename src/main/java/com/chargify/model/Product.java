@@ -1,5 +1,6 @@
 package com.chargify.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -36,12 +37,13 @@ public class Product
   private Date updatedAt;
 
   @JsonProperty( "price_in_cents" )
-  private Integer priceInCents;
+  private int priceInCents;
 
-  private String interval;
+  @JsonProperty( "interval" )
+  private int recurringInterval;
 
   @JsonProperty( "interval_unit" )
-  private String intervalUnit;
+  private IntervalUnit intervalUnit;
 
   @JsonProperty( "initial_charge_in_cents" )
   private String initialChargeInCents;
@@ -84,6 +86,18 @@ public class Product
   @JsonProperty( "public_signup_pages" )
   private List<PublicSignupPage> publicSignupPages;
 
+  @JsonCreator
+  public Product( @JsonProperty( "name" ) final String name,
+                  @JsonProperty( "price" ) final int priceInCents,
+                  @JsonProperty( "interval" ) final int recurringInterval,
+                  @JsonProperty( "interval_unit" ) final IntervalUnit intervalUnit )
+  {
+    this.name = name;
+    this.priceInCents = priceInCents;
+    this.recurringInterval = recurringInterval;
+    this.intervalUnit = intervalUnit;
+  }
+
   public String getId()
   {
     return id;
@@ -97,11 +111,6 @@ public class Product
   public String getName()
   {
     return name;
-  }
-
-  public void setName( String name )
-  {
-    this.name = name;
   }
 
   public String getHandle()
@@ -189,29 +198,14 @@ public class Product
     return priceInCents;
   }
 
-  public void setPriceInCents( Integer priceInCents )
+  public int getRecurringInterval()
   {
-    this.priceInCents = priceInCents;
+    return recurringInterval;
   }
 
-  public String getInterval()
-  {
-    return interval;
-  }
-
-  public void setInterval( String interval )
-  {
-    this.interval = interval;
-  }
-
-  public String getIntervalUnit()
+  public IntervalUnit getIntervalUnit()
   {
     return intervalUnit;
-  }
-
-  public void setIntervalUnit( String intervalUnit )
-  {
-    this.intervalUnit = intervalUnit;
   }
 
   public String getInitialChargeInCents()
@@ -357,7 +351,8 @@ public class Product
   @Override
   public String toString()
   {
-    return "Product{" + "id='" + id + '\'' +
+    return "Product{" +
+            "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", handle='" + handle + '\'' +
             ", description='" + description + '\'' +
@@ -368,8 +363,8 @@ public class Product
             ", createdAt=" + createdAt +
             ", updatedAt=" + updatedAt +
             ", priceInCents=" + priceInCents +
-            ", interval='" + interval + '\'' +
-            ", intervalUnit='" + intervalUnit + '\'' +
+            ", recurringInterval=" + recurringInterval +
+            ", intervalUnit=" + intervalUnit +
             ", initialChargeInCents='" + initialChargeInCents + '\'' +
             ", trialPriceInCents=" + trialPriceInCents +
             ", trialInterval=" + trialInterval +
@@ -382,8 +377,13 @@ public class Product
             ", initialChargeAfterTrial=" + initialChargeAfterTrial +
             ", versionNumber=" + versionNumber +
             ", updateReturnParams='" + updateReturnParams + '\'' +
-            ", productFamily=" + productFamily +
+            ", productFamilies=" + productFamily +
             ", publicSignupPages=" + publicSignupPages +
             '}';
+  }
+
+  public enum IntervalUnit
+  {
+    month, day
   }
 }

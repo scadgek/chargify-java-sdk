@@ -11,7 +11,7 @@ public class ChargifyException extends RuntimeException
 
   private ChargifyException( Collection<String> errorMessages )
   {
-    super( String.join( " ", errorMessages ) );
+    super( String.join( " && ", errorMessages ) );
   }
 
   static ChargifyException fromErrors( Collection<String> errorMessages )

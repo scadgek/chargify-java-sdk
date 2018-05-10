@@ -18,6 +18,7 @@
 
 package com.chargify.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,12 +27,8 @@ import java.util.Date;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Customer
 {
-  @JsonProperty( "first_name" )
   private String firstName;
-
-  @JsonProperty( "last_name" )
   private String lastName;
-
   private String email;
 
   @JsonProperty( "cc_emails" )
@@ -75,34 +72,37 @@ public class Customer
   @JsonProperty( "portal_invite_last_accepted_at" )
   private Date portalInviteLastAcceptedAt;
 
+  @JsonCreator
+  public Customer( @JsonProperty( "first_name" ) String firstName,
+                   @JsonProperty( "last_name" ) String lastName,
+                   @JsonProperty( "email" ) String email )
+  {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+  }
+
+  public Customer()
+  {
+
+  }
+
+  @JsonProperty( "first_name" )
   public String getFirstName()
   {
     return firstName;
   }
 
-  public void setFirstName( String firstName )
-  {
-    this.firstName = firstName;
-  }
-
+  @JsonProperty( "last_name" )
   public String getLastName()
   {
     return lastName;
   }
 
-  public void setLastName( String lastName )
-  {
-    this.lastName = lastName;
-  }
-
+  @JsonProperty( "email" )
   public String getEmail()
   {
     return email;
-  }
-
-  public void setEmail( String email )
-  {
-    this.email = email;
   }
 
   public String getCcEmails()

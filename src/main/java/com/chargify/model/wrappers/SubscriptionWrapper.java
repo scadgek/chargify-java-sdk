@@ -1,22 +1,22 @@
 package com.chargify.model.wrappers;
 
-import com.chargify.model.SubscriptionOutput;
+import com.chargify.model.Subscription;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class SubscriptionOutputWrapper
+public final class SubscriptionWrapper
 {
-  private final SubscriptionOutput subscription;
+  private final Subscription subscription;
 
   @JsonCreator
-  public SubscriptionOutputWrapper(
+  public SubscriptionWrapper(
           @JsonProperty( "subscription" )
-                  SubscriptionOutput wrappedSubscription )
+                  Subscription wrappedSubscription )
   {
     this.subscription = wrappedSubscription;
   }
 
-  public SubscriptionOutput getSubscription()
+  public Subscription getSubscription()
   {
     return subscription;
   }

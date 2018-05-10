@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class SubscriptionOutput
+public class Subscription
 {
   private String id;
 
@@ -81,8 +81,23 @@ public class SubscriptionOutput
   @JsonProperty( "current_period_started_at" )
   private Date currentPeriodStartedAt;
 
+  @JsonProperty( "customer_attributes" )
+  private Customer customerAttributes;
+
+  @JsonProperty( "customer_id" )
+  private String customerId;
+
+  @JsonProperty( "customer_reference" )
+  private String customerReference;
+
   @JsonProperty( "previous_state" )
   private String previousState;
+
+  @JsonProperty( "product_handle" )
+  private String productHandle;
+
+  @JsonProperty( "product_id" )
+  private String productId;
 
   @JsonProperty( "signup_payment_id" )
   private Integer signupPaymentId;
@@ -517,5 +532,55 @@ public class SubscriptionOutput
             ", couponUseCount=" + couponUseCount +
             ", couponUsesAllowed=" + couponUsesAllowed +
             '}';
+  }
+
+  public String getProductId()
+  {
+    return productId;
+  }
+
+  public void setProductId( String productId )
+  {
+    this.productId = productId;
+  }
+
+  public String getCustomerId()
+  {
+    return customerId;
+  }
+
+  public void setCustomerId( String customerId )
+  {
+    this.customerId = customerId;
+  }
+
+  public String getCustomerReference()
+  {
+    return customerReference;
+  }
+
+  public void setCustomerReference( String customerReference )
+  {
+    this.customerReference = customerReference;
+  }
+
+  public String getProductHandle()
+  {
+    return productHandle;
+  }
+
+  public void setProductHandle( String productHandle )
+  {
+    this.productHandle = productHandle;
+  }
+
+  public Customer getCustomerAttributes()
+  {
+    return customerAttributes;
+  }
+
+  public void setCustomerAttributes( Customer customerAttributes )
+  {
+    this.customerAttributes = customerAttributes;
   }
 }
