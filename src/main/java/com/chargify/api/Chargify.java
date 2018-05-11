@@ -2,8 +2,8 @@ package com.chargify.api;
 
 import com.chargify.exceptions.ChargifyResponseErrorHandler;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 public final class Chargify
 {
@@ -17,7 +17,7 @@ public final class Chargify
   public Chargify( String domain, String apiKey )
   {
     this.httpClient = new RestTemplateBuilder()
-            .uriTemplateHandler( new DefaultUriBuilderFactory( "https://" + domain + ".chargify.com" ) )
+            .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
             .basicAuthorization( apiKey, "x" )
             .errorHandler( new ChargifyResponseErrorHandler() )
             .build();
