@@ -90,6 +90,9 @@ public class Subscription
   @JsonProperty( "customer_reference" )
   private String customerReference;
 
+  @JsonProperty( "product_change_delayed" )
+  private boolean productChangeDelayed;
+
   @JsonProperty( "previous_state" )
   private String previousState;
 
@@ -492,48 +495,6 @@ public class Subscription
     this.couponUsesAllowed = couponUsesAllowed;
   }
 
-  @Override
-  public String toString()
-  {
-    return "SubscriptionOutput{" +
-            "id='" + id + '\'' +
-            ", state='" + state + '\'' +
-            ", balanceInCents=" + balanceInCents +
-            ", totalRevenueInCents=" + totalRevenueInCents +
-            ", productPriceInCents=" + productPriceInCents +
-            ", productVersionNumber=" + productVersionNumber +
-            ", currentPeriodEndsAt=" + currentPeriodEndsAt +
-            ", nextAssessmentAt=" + nextAssessmentAt +
-            ", trialStartedAt=" + trialStartedAt +
-            ", trialEndedAt=" + trialEndedAt +
-            ", activatedAt=" + activatedAt +
-            ", expiresAt=" + expiresAt +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            ", cancellationMessage='" + cancellationMessage + '\'' +
-            ", cancellationMethod='" + cancellationMethod + '\'' +
-            ", cancelAtEndOfPeriod=" + cancelAtEndOfPeriod +
-            ", canceledAt=" + canceledAt +
-            ", currentPeriodStartedAt=" + currentPeriodStartedAt +
-            ", previousState='" + previousState + '\'' +
-            ", signupPaymentId=" + signupPaymentId +
-            ", signupRevenue='" + signupRevenue + '\'' +
-            ", delayedCancelAt=" + delayedCancelAt +
-            ", couponCode='" + couponCode + '\'' +
-            ", paymentCollectionMethod='" + paymentCollectionMethod + '\'' +
-            ", snapDay='" + snapDay + '\'' +
-            ", reasonCode='" + reasonCode + '\'' +
-            ", customer=" + customer +
-            ", product=" + product +
-            ", creditCard=" + creditCard +
-            ", paymentType='" + paymentType + '\'' +
-            ", referralCode='" + referralCode + '\'' +
-            ", nextProductId='" + nextProductId + '\'' +
-            ", couponUseCount=" + couponUseCount +
-            ", couponUsesAllowed=" + couponUsesAllowed +
-            '}';
-  }
-
   public String getProductId()
   {
     return productId;
@@ -582,5 +543,63 @@ public class Subscription
   public void setCustomerAttributes( Customer customerAttributes )
   {
     this.customerAttributes = customerAttributes;
+  }
+
+  public boolean isProductChangeDelayed()
+  {
+    return productChangeDelayed;
+  }
+
+  public void setProductChangeDelayed( boolean productChangeDelayed )
+  {
+    this.productChangeDelayed = productChangeDelayed;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Subscription{" +
+            "id='" + id + '\'' +
+            ", state='" + state + '\'' +
+            ", balanceInCents=" + balanceInCents +
+            ", totalRevenueInCents=" + totalRevenueInCents +
+            ", productPriceInCents=" + productPriceInCents +
+            ", productVersionNumber=" + productVersionNumber +
+            ", currentPeriodEndsAt=" + currentPeriodEndsAt +
+            ", nextAssessmentAt=" + nextAssessmentAt +
+            ", trialStartedAt=" + trialStartedAt +
+            ", trialEndedAt=" + trialEndedAt +
+            ", activatedAt=" + activatedAt +
+            ", expiresAt=" + expiresAt +
+            ", createdAt=" + createdAt +
+            ", updatedAt=" + updatedAt +
+            ", cancellationMessage='" + cancellationMessage + '\'' +
+            ", cancellationMethod='" + cancellationMethod + '\'' +
+            ", cancelAtEndOfPeriod=" + cancelAtEndOfPeriod +
+            ", canceledAt=" + canceledAt +
+            ", currentPeriodStartedAt=" + currentPeriodStartedAt +
+            ", customerAttributes=" + customerAttributes +
+            ", customerId='" + customerId + '\'' +
+            ", customerReference='" + customerReference + '\'' +
+            ", productChangeDelayed=" + productChangeDelayed +
+            ", previousState='" + previousState + '\'' +
+            ", productHandle='" + productHandle + '\'' +
+            ", productId='" + productId + '\'' +
+            ", signupPaymentId=" + signupPaymentId +
+            ", signupRevenue='" + signupRevenue + '\'' +
+            ", delayedCancelAt=" + delayedCancelAt +
+            ", couponCode='" + couponCode + '\'' +
+            ", paymentCollectionMethod='" + paymentCollectionMethod + '\'' +
+            ", snapDay='" + snapDay + '\'' +
+            ", reasonCode='" + reasonCode + '\'' +
+            ", customer=" + customer +
+            ", product=" + product +
+            ", creditCard=" + creditCard +
+            ", paymentType='" + paymentType + '\'' +
+            ", referralCode='" + referralCode + '\'' +
+            ", nextProductId='" + nextProductId + '\'' +
+            ", couponUseCount=" + couponUseCount +
+            ", couponUsesAllowed=" + couponUsesAllowed +
+            '}';
   }
 }

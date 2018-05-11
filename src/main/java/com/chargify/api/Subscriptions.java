@@ -57,6 +57,19 @@ public final class Subscriptions
             .collect( Collectors.toList() );
   }
 
+  public Subscription productChange( final String subscriptionId, final String productHandle, final boolean delayed )
+  {
+    final Subscription subscription = new Subscription();
+    subscription.setProductHandle( productHandle );
+    subscription.setProductChangeDelayed( delayed );
+
+    return chargify.httpClient()
+            .exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
+                       new HttpEntity<>( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
+            .getBody()
+            .getSubscription();
+  }
+
   public Optional<Subscription> cancel( final String id )
   {
     try
