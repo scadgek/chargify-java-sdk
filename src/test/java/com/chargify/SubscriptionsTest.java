@@ -13,7 +13,6 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -104,14 +103,6 @@ public class SubscriptionsTest extends ChargifyTest
     final Subscription subscription = chargify.subscriptions().productChange( subscriptionUnderTest.getId(), productForImmediateChange.getHandle(), false );
     assertNull( "Product change scheduled", subscription.getNextProductId() );
     assertEquals( "Product should have been changed", productForImmediateChange.getId(), subscription.getProduct().getId() );
-  }
-
-  @Test
-  public void delayedProductChangeShouldChangeNextProductId()
-  {
-    final Subscription subscription = chargify.subscriptions().productChange( subscriptionUnderTest.getId(), productForDelayedChange.getHandle(), true );
-    assertNotNull( "Product change not scheduled", subscription.getNextProductId() );
-    assertEquals( "Wrong next product", productForDelayedChange.getId(), subscription.getNextProductId() );
   }
 
   @Test

@@ -83,6 +83,18 @@ public final class Subscriptions
             .getSubscription();
   }
 
+  public Subscription cancelProductChange( final String subscriptionId )
+  {
+    final Subscription subscription = new Subscription();
+    subscription.setNextProductId( "" );
+
+    return chargify.httpClient()
+            .exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
+                       new HttpEntity<>( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
+            .getBody()
+            .getSubscription();
+  }
+
   public Optional<Subscription> cancel( final String id )
   {
     try

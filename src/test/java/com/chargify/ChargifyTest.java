@@ -25,4 +25,9 @@ public abstract class ChargifyTest
   {
     return UUID.randomUUID().toString();
   }
+
+  protected static String randomEmail()
+  {
+    return UUID.randomUUID().toString().substring( 24 ) + "@email.com";
+  }
 }
