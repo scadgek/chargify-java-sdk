@@ -10,6 +10,7 @@ public final class Chargify
   private final ProductFamilies productFamilies;
   private final Products products;
   private final Subscriptions subscriptions;
+  private final Components components;
   private final Customers customers;
 
   private final RestTemplate httpClient;
@@ -25,7 +26,13 @@ public final class Chargify
     this.productFamilies = new ProductFamilies( this );
     this.products = new Products( this );
     this.subscriptions = new Subscriptions( this );
+    this.components = new Components( this );
     this.customers = new Customers( this );
+  }
+
+  public Components components()
+  {
+    return components;
   }
 
   public Customers customers()

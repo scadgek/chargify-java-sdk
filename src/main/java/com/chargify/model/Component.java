@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class ComponentDefinition implements Serializable
+public class Component implements Serializable
 {
   private String id;
 
