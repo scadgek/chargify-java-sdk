@@ -25,6 +25,7 @@ public class SubscriptionsTest extends ChargifyTest
   private static Subscription subscriptionUnderTest;
   private static Product productForDelayedChange;
   private static Product productForImmediateChange;
+  private static Product productForMigration;
 
   @BeforeClass
   public static void setup()
@@ -43,6 +44,9 @@ public class SubscriptionsTest extends ChargifyTest
 
     product.setHandle( randomName() );
     productForImmediateChange = chargify.products().create( productFamilyUnderTest.getId(), product );
+
+    product.setHandle( randomName() );
+    productForMigration = chargify.products().create( productFamilyUnderTest.getId(), product );
 
     customerUnderTest = chargify.customers()
             .create( new Customer( "Andy", "Panda", "andypanda@example.com" ) );
@@ -108,5 +112,13 @@ public class SubscriptionsTest extends ChargifyTest
     final Subscription subscription = chargify.subscriptions().productChange( subscriptionUnderTest.getId(), productForDelayedChange.getHandle(), true );
     assertNotNull( "Product change not scheduled", subscription.getNextProductId() );
     assertEquals( "Wrong next product", productForDelayedChange.getId(), subscription.getNextProductId() );
+  }
+
+  @Test
+  public void migrationShouldChangeProduct()
+  {
+    final Subscription subscription = chargify.subscriptions().migrate( subscriptionUnderTest.getId(), productForMigration.getHandle() );
+    assertNull( "Product change scheduled", subscription.getNextProductId() );
+    assertEquals( "Product has not been migrated", productForMigration.getHandle(), subscription.getProduct().getHandle() );
   }
 }

@@ -1,7 +1,9 @@
 package com.chargify.api;
 
 import com.chargify.exceptions.ResourceNotFoundException;
+import com.chargify.model.Migration;
 import com.chargify.model.Subscription;
+import com.chargify.model.wrappers.MigrationWrapper;
 import com.chargify.model.wrappers.SubscriptionWrapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -67,6 +69,17 @@ public final class Subscriptions
             .exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
                        new HttpEntity<>( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
             .getBody()
+            .getSubscription();
+  }
+
+  public Subscription migrate( final String subscriptionId, final String productHandle )
+  {
+    final Migration migration = new Migration();
+    migration.setProductHandle( productHandle );
+
+    return chargify.httpClient()
+            .postForObject( "/subscriptions/" + subscriptionId + "/migrations.json",
+                            new MigrationWrapper( migration ), SubscriptionWrapper.class )
             .getSubscription();
   }
 
