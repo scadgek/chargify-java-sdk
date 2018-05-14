@@ -1,9 +1,11 @@
 package com.chargify.api;
 
 import com.chargify.exceptions.ResourceNotFoundException;
+import com.chargify.model.ComponentPricePointUpdate;
 import com.chargify.model.Migration;
 import com.chargify.model.RenewalPreview;
 import com.chargify.model.Subscription;
+import com.chargify.model.wrappers.ComponentPricePointUpdatesWrapper;
 import com.chargify.model.wrappers.MigrationWrapper;
 import com.chargify.model.wrappers.RenewalPreviewWrapper;
 import com.chargify.model.wrappers.SubscriptionWrapper;
@@ -109,6 +111,18 @@ public final class Subscriptions
             .getSubscription();
   }
 
+  public ComponentPricePointUpdate migrateComponentToPricePoint( final String subscriptionId,
+                                                                 final int componentId,
+                                                                 final String pricePointHandle )
+  {
+    return chargify.httpClient()
+            .postForObject( "/subscriptions/" + subscriptionId + "/price_points.json",
+                            new ComponentPricePointUpdatesWrapper(
+                                    new ComponentPricePointUpdate( componentId, pricePointHandle ) ),
+                            ComponentPricePointUpdatesWrapper.class )
+            .getPricePointUpdates()[ 0 ];
+  }
+
   public Subscription productChange( final String subscriptionId, final String productHandle, final boolean delayed )
   {
     final Subscription subscription = new Subscription();
@@ -125,8 +139,8 @@ public final class Subscriptions
   public RenewalPreview renewalPreview( final String subscriptionId )
   {
     return chargify.httpClient()
-            .getForObject( "/subscriptions/" + subscriptionId + "/renewals/preview.json",
-                           RenewalPreviewWrapper.class )
+            .postForObject( "/subscriptions/" + subscriptionId + "/renewals/preview.json",
+                            HttpEntity.EMPTY, RenewalPreviewWrapper.class )
             .getRenewalPreview();
   }
 }
