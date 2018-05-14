@@ -2,8 +2,10 @@ package com.chargify.api;
 
 import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.Migration;
+import com.chargify.model.RenewalPreview;
 import com.chargify.model.Subscription;
 import com.chargify.model.wrappers.MigrationWrapper;
+import com.chargify.model.wrappers.RenewalPreviewWrapper;
 import com.chargify.model.wrappers.SubscriptionWrapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -59,11 +61,35 @@ public final class Subscriptions
             .collect( Collectors.toList() );
   }
 
-  public Subscription productChange( final String subscriptionId, final String productHandle, final boolean delayed )
+  public List<Subscription> findByState( final String state, final int pageNumber, final int pageSize )
+  {
+    return Arrays.stream( chargify.httpClient()
+                                  .getForObject( "/subscriptions.json?page=" + pageNumber +
+                                                         "&per_page=" + pageSize + "&state=" + state,
+                                                 SubscriptionWrapper[].class ) )
+            .map( SubscriptionWrapper::getSubscription )
+            .collect( Collectors.toList() );
+  }
+
+  public Optional<Subscription> cancel( final String id )
+  {
+    try
+    {
+      return Optional.of( chargify.httpClient()
+                                  .exchange( "/subscriptions/" + id + ".json", HttpMethod.DELETE, HttpEntity.EMPTY, SubscriptionWrapper.class )
+                                  .getBody()
+                                  .getSubscription() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return Optional.empty();
+    }
+  }
+
+  public Subscription cancelProductChange( final String subscriptionId )
   {
     final Subscription subscription = new Subscription();
-    subscription.setProductHandle( productHandle );
-    subscription.setProductChangeDelayed( delayed );
+    subscription.setNextProductId( "" );
 
     return chargify.httpClient()
             .exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
@@ -83,10 +109,11 @@ public final class Subscriptions
             .getSubscription();
   }
 
-  public Subscription cancelProductChange( final String subscriptionId )
+  public Subscription productChange( final String subscriptionId, final String productHandle, final boolean delayed )
   {
     final Subscription subscription = new Subscription();
-    subscription.setNextProductId( "" );
+    subscription.setProductHandle( productHandle );
+    subscription.setProductChangeDelayed( delayed );
 
     return chargify.httpClient()
             .exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
@@ -95,18 +122,11 @@ public final class Subscriptions
             .getSubscription();
   }
 
-  public Optional<Subscription> cancel( final String id )
+  public RenewalPreview renewalPreview( final String subscriptionId )
   {
-    try
-    {
-      return Optional.of( chargify.httpClient()
-                                  .exchange( "/subscriptions/" + id + ".json", HttpMethod.DELETE, HttpEntity.EMPTY, SubscriptionWrapper.class )
-                                  .getBody()
-                                  .getSubscription() );
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return Optional.empty();
-    }
+    return chargify.httpClient()
+            .getForObject( "/subscriptions/" + subscriptionId + "/renewals/preview.json",
+                           RenewalPreviewWrapper.class )
+            .getRenewalPreview();
   }
 }

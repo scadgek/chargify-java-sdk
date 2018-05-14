@@ -7,11 +7,12 @@ import org.springframework.web.client.RestTemplate;
 
 public final class Chargify
 {
-  private final ProductFamilies productFamilies;
-  private final Products products;
-  private final Subscriptions subscriptions;
   private final Components components;
   private final Customers customers;
+  private final ProductFamilies productFamilies;
+  private final Products products;
+  private final ReferralCodes referralCodes;
+  private final Subscriptions subscriptions;
 
   private final RestTemplate httpClient;
 
@@ -28,6 +29,7 @@ public final class Chargify
     this.subscriptions = new Subscriptions( this );
     this.components = new Components( this );
     this.customers = new Customers( this );
+    this.referralCodes = new ReferralCodes( this );
   }
 
   public Components components()
@@ -48,6 +50,11 @@ public final class Chargify
   public Products products()
   {
     return products;
+  }
+
+  public ReferralCodes referralCodes()
+  {
+    return referralCodes;
   }
 
   public Subscriptions subscriptions()

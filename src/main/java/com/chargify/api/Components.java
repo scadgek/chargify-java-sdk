@@ -1,5 +1,6 @@
 package com.chargify.api;
 
+import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.Component;
 import com.chargify.model.SubscriptionComponent;
 import com.chargify.model.wrappers.AnyComponentWrapper;
@@ -11,6 +12,7 @@ import com.chargify.model.wrappers.SubscriptionComponentWrapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class Components
@@ -62,11 +64,41 @@ public final class Components
             .collect( Collectors.toList() );
   }
 
-  public List<SubscriptionComponent> findBySubscriptionId( final String subscriptionId )
+  public Optional<Component> findByIdAndProductFamily( final String componentId, final String productFamilyId )
+  {
+    try
+    {
+      return Optional.of( chargify.httpClient()
+                                  .getForObject( "/product_families/" + productFamilyId + "/components/" + componentId + ".json",
+                                                 AnyComponentWrapper.class )
+                                  .getComponent() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return Optional.empty();
+    }
+  }
+
+  public List<Component> findBySubscriptionId( final String subscriptionId )
   {
     return Arrays.stream( chargify.httpClient()
-                                  .getForObject( "/subscriptions/" + subscriptionId + "/components.json", SubscriptionComponentWrapper[].class ) )
-            .map( SubscriptionComponentWrapper::getComponent )
+                                  .getForObject( "/subscriptions/" + subscriptionId + "/components.json", AnyComponentWrapper[].class ) )
+            .map( AnyComponentWrapper::getComponent )
             .collect( Collectors.toList() );
+  }
+
+  public Optional<SubscriptionComponent> findBySubscriptionId( final String subscriptionId, final String componentId )
+  {
+    try
+    {
+      return Optional.of( chargify.httpClient()
+                                  .getForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId + ".json",
+                                                 SubscriptionComponentWrapper.class )
+                                  .getComponent() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return Optional.empty();
+    }
   }
 }

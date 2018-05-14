@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class ValidationReferralCodeOutput
+public class ReferralCode
 {
   private String id;
 
@@ -21,7 +21,7 @@ public class ValidationReferralCodeOutput
     return id;
   }
 
-  public ValidationReferralCodeOutput setId( String id )
+  public ReferralCode setId( String id )
   {
     this.id = id;
     return this;
@@ -32,7 +32,7 @@ public class ValidationReferralCodeOutput
     return siteId;
   }
 
-  public ValidationReferralCodeOutput setSiteId( String siteId )
+  public ReferralCode setSiteId( String siteId )
   {
     this.siteId = siteId;
     return this;
@@ -43,7 +43,7 @@ public class ValidationReferralCodeOutput
     return subscriptionId;
   }
 
-  public ValidationReferralCodeOutput setSubscriptionId( String subscriptionId )
+  public ReferralCode setSubscriptionId( String subscriptionId )
   {
     this.subscriptionId = subscriptionId;
     return this;
@@ -54,7 +54,7 @@ public class ValidationReferralCodeOutput
     return code;
   }
 
-  public ValidationReferralCodeOutput setCode( String code )
+  public ReferralCode setCode( String code )
   {
     this.code = code;
     return this;
