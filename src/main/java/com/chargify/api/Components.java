@@ -3,12 +3,14 @@ package com.chargify.api;
 import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.Component;
 import com.chargify.model.SubscriptionComponent;
+import com.chargify.model.Usage;
 import com.chargify.model.wrappers.AnyComponentWrapper;
 import com.chargify.model.wrappers.ComponentWrapper;
 import com.chargify.model.wrappers.MeteredComponentWrapper;
 import com.chargify.model.wrappers.OnOffComponentWrapper;
 import com.chargify.model.wrappers.QuantityBasedComponentWrapper;
 import com.chargify.model.wrappers.SubscriptionComponentWrapper;
+import com.chargify.model.wrappers.UsageWrapper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -100,5 +102,13 @@ public final class Components
     {
       return Optional.empty();
     }
+  }
+
+  public Usage reportUsage( final String subscriptionId, final String componentId, final Usage usage )
+  {
+    return chargify.httpClient()
+            .postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId + "/usages.json",
+                            new UsageWrapper( usage ), UsageWrapper.class )
+            .getUsage();
   }
 }

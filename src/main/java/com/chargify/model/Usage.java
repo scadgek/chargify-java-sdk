@@ -19,6 +19,9 @@ public class Usage
 
   private Integer quantity;
 
+  @JsonProperty( "price_point_id" )
+  private Integer pricePointId;
+
   public Date getCreatedAt()
   {
     return createdAt;
@@ -57,5 +60,27 @@ public class Usage
   public void setQuantity( Integer quantity )
   {
     this.quantity = quantity;
+  }
+
+  public Integer getPricePointId()
+  {
+    return pricePointId;
+  }
+
+  public void setPricePointId( Integer pricePointId )
+  {
+    this.pricePointId = pricePointId;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Usage{" +
+            "createdAt=" + createdAt +
+            ", id='" + id + '\'' +
+            ", memo='" + memo + '\'' +
+            ", quantity=" + quantity +
+            ", pricePointId=" + pricePointId +
+            '}';
   }
 }
