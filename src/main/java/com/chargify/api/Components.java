@@ -1,9 +1,11 @@
 package com.chargify.api;
 
 import com.chargify.exceptions.ResourceNotFoundException;
+import com.chargify.model.Allocation;
 import com.chargify.model.Component;
 import com.chargify.model.SubscriptionComponent;
 import com.chargify.model.Usage;
+import com.chargify.model.wrappers.AllocationWrapper;
 import com.chargify.model.wrappers.AnyComponentWrapper;
 import com.chargify.model.wrappers.ComponentWrapper;
 import com.chargify.model.wrappers.MeteredComponentWrapper;
@@ -57,6 +59,19 @@ public final class Components
             .getComponent();
   }
 
+  public Allocation createAllocation( final String subscriptionId, final String componentId, final int quantity,
+                                      final String memo )
+  {
+    final Allocation allocation = new Allocation();
+    allocation.setQuantity( quantity );
+    allocation.setMemo( memo );
+
+    return chargify.httpClient()
+            .postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId + "/allocations.json",
+                            new AllocationWrapper( allocation ), AllocationWrapper.class )
+            .getAllocation();
+  }
+
   public List<Component> findByProductFamily( final String productFamilyId )
   {
     return Arrays.stream( chargify.httpClient()
@@ -81,11 +96,11 @@ public final class Components
     }
   }
 
-  public List<Component> findBySubscriptionId( final String subscriptionId )
+  public List<SubscriptionComponent> findBySubscriptionId( final String subscriptionId )
   {
     return Arrays.stream( chargify.httpClient()
-                                  .getForObject( "/subscriptions/" + subscriptionId + "/components.json", AnyComponentWrapper[].class ) )
-            .map( AnyComponentWrapper::getComponent )
+                                  .getForObject( "/subscriptions/" + subscriptionId + "/components.json", SubscriptionComponentWrapper[].class ) )
+            .map( SubscriptionComponentWrapper::getComponent )
             .collect( Collectors.toList() );
   }
 
