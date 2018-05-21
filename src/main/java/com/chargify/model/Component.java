@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Component implements Serializable
@@ -41,6 +42,17 @@ public class Component implements Serializable
 
   @JsonProperty( "product_family_id" )
   private String productFamilyId;
+
+  @JsonProperty( "default_price_point_name" )
+  private String defaultPricePointName;
+
+  @JsonProperty( "default_price_point_handle" )
+  private String defaultPricePointHandle;
+
+  private Price[] prices;
+
+  @JsonProperty( "price_points" )
+  private PricePoint[] pricePoints;
 
   private ComponentKind kind;
 
@@ -148,5 +160,63 @@ public class Component implements Serializable
   public void setDescription( String description )
   {
     this.description = description;
+  }
+
+  public Price[] getPrices()
+  {
+    return prices;
+  }
+
+  public void setPrices( Price[] prices )
+  {
+    this.prices = prices;
+  }
+
+  public PricePoint[] getPricePoints()
+  {
+    return pricePoints;
+  }
+
+  public void setPricePoints( PricePoint[] pricePoints )
+  {
+    this.pricePoints = pricePoints;
+  }
+
+  public String toString()
+  {
+    return "Component{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", pricingScheme='" + pricingScheme + '\'' +
+            ", unitName='" + unitName + '\'' +
+            ", unitPrice=" + unitPrice +
+            ", productFamilyId='" + productFamilyId + '\'' +
+            ", prices=" + Arrays.toString( prices ) +
+            ", pricePoints=" + Arrays.toString( pricePoints ) +
+            ", kind=" + kind +
+            ", archived=" + archived +
+            ", taxable=" + taxable +
+            ", description='" + description + '\'' +
+            '}';
+  }
+
+  public String getDefaultPricePointName()
+  {
+    return defaultPricePointName;
+  }
+
+  public void setDefaultPricePointName( String defaultPricePointName )
+  {
+    this.defaultPricePointName = defaultPricePointName;
+  }
+
+  public String getDefaultPricePointHandle()
+  {
+    return defaultPricePointHandle;
+  }
+
+  public void setDefaultPricePointHandle( String defaultPricePointHandle )
+  {
+    this.defaultPricePointHandle = defaultPricePointHandle;
   }
 }
