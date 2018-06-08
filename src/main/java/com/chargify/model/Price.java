@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public final class Price
+public final class Price implements Serializable
 {
   private Integer startingQuantity;
   private Integer endingQuantity;

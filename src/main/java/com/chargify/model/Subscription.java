@@ -21,10 +21,11 @@ package com.chargify.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class Subscription
+public class Subscription implements Serializable
 {
   private String id;
 
