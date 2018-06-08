@@ -22,10 +22,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class Customer
+public class Customer implements Serializable
 {
   private String firstName;
   private String lastName;
