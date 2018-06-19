@@ -19,52 +19,53 @@ public class CustomersTest extends ChargifyTest
   @BeforeClass
   public static void setup()
   {
-    customerUnderTest = chargify.customers().create( new Customer( "Andy", "Panda", "andypanda@email.com" ) );
+    customerUnderTest = chargify.createCustomer( new Customer( "Andy", "Panda",
+                                                               "andypanda@email.com" ) );
 
     final Customer customer = new Customer( "Martha", "Washington", "martha@example.com" );
     customer.setReference( randomName() );
-    customerWithReferenceUnderTest = chargify.customers().create( customer );
+    customerWithReferenceUnderTest = chargify.createCustomer( customer );
   }
 
   @AfterClass
   public static void cleanup()
   {
-    chargify.customers().deleteIfExists( customerUnderTest.getId() );
-    chargify.customers().deleteIfExists( customerWithReferenceUnderTest.getId() );
+    chargify.deleteCustomerById( customerUnderTest.getId() );
+    chargify.deleteCustomerById( customerWithReferenceUnderTest.getId() );
   }
 
   @Test
   public void customerShouldBeFoundByValidId()
   {
-    final Optional<Customer> customer = chargify.customers().findById( customerUnderTest.getId() );
+    final Optional<Customer> customer = chargify.findCustomerById( customerUnderTest.getId() );
     assertTrue( "Customer not found", customer.isPresent() );
   }
 
   @Test
   public void customerShouldNotBeFoundByInvalidId()
   {
-    final Optional<Customer> customer = chargify.customers().findById( "nonexisting" );
+    final Optional<Customer> customer = chargify.findCustomerById( "nonexisting" );
     assertFalse( "Customer should not have been found", customer.isPresent() );
   }
 
   @Test
   public void findAllShouldFindAtLeastOne()
   {
-    final List<Customer> customers = chargify.customers().findAll();
+    final List<Customer> customers = chargify.findAllCustomers();
     assertTrue( "No customers found", customers.size() > 0 );
   }
 
   @Test
   public void customerShouldBeFoundByValidReference()
   {
-    final Optional<Customer> customer = chargify.customers().findByReference( customerWithReferenceUnderTest.getReference() );
+    final Optional<Customer> customer = chargify.findCustomerByReference( customerWithReferenceUnderTest.getReference() );
     assertTrue( "Customer not found by reference", customer.isPresent() );
   }
 
   @Test
   public void customerShouldNotBeFoundByInvalidReference()
   {
-    final Optional<Customer> customer = chargify.customers().findByReference( "invalid" );
+    final Optional<Customer> customer = chargify.findCustomerByReference( "invalid" );
     assertFalse( "Customer should not have been found", customer.isPresent() );
   }
 }

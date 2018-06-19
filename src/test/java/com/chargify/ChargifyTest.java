@@ -1,7 +1,5 @@
 package com.chargify;
 
-import com.chargify.api.Chargify;
-
 import java.util.UUID;
 
 public abstract class ChargifyTest
@@ -18,7 +16,7 @@ public abstract class ChargifyTest
                                           "-Dchargify.domain=XXX -Dchargify.apikey=YYY" );
     }
 
-    chargify = new Chargify( domain, apiKey );
+    chargify = new ChargifyService( domain, apiKey );
   }
 
   protected static String randomName()

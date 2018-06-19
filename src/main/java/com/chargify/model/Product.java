@@ -378,7 +378,7 @@ public class Product implements Serializable
             ", initialChargeAfterTrial=" + initialChargeAfterTrial +
             ", versionNumber=" + versionNumber +
             ", updateReturnParams='" + updateReturnParams + '\'' +
-            ", productFamilies=" + productFamily +
+            ", productFamily=" + productFamily +
             ", publicSignupPages=" + publicSignupPages +
             '}';
   }

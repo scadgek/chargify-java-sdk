@@ -74,7 +74,7 @@ public class ProductFamily implements Serializable
   @Override
   public String toString()
   {
-    return "productFamilies{" +
+    return "ProductFamily{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", description='" + description + '\'' +
