@@ -2,5 +2,5 @@
 *Example usage:*
 ```
 Chargify chargify = new ChargifyService( "mydomain", "myapiKey" );
-List<ProductFamily> productFamilies = chargify.findAddProductFamilies();
+List<ProductFamily> productFamilies = chargify.findAllProductFamilies();
 ```
