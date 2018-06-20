@@ -1,6 +1,6 @@
 # Chargify Java SDK
 *Example usage:*
 ```
-Chargify chargify = new Chargify( "mydomain", "myapiKey" );
-List<ProductFamily> productFamilies = chargify.productFamily().readAll();
+Chargify chargify = new ChargifyService( "mydomain", "myapiKey" );
+List<ProductFamily> productFamilies = chargify.findAllProductFamilies();
 ```
