@@ -9,7 +9,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ProductsTest extends ChargifyTest
 {
@@ -42,33 +41,33 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void productShouldBeFoundById()
   {
-    final Optional<Product> product = chargify.findProductById( productUnderTest.getId() );
+    final Product product = chargify.findProductById( productUnderTest.getId() );
 
-    Assert.assertTrue( "Product not found", product.isPresent() );
+    Assert.assertNotNull( "Product not found", product );
   }
 
   @Test
   public void productShouldNotBeFoundByInvalidId()
   {
-    final Optional<Product> product = chargify.findProductById( "nonexisting" );
+    final Product product = chargify.findProductById( "nonexisting" );
 
-    Assert.assertFalse( "Product should not be found by invalid ID", product.isPresent() );
+    Assert.assertNull( "Product should not be found by invalid ID", product );
   }
 
   @Test
   public void productShouldBeFoundByApiHandle()
   {
-    final Optional<Product> product = chargify.findProductByApiHandle( productWithHandleUnderTest.getHandle() );
+    final Product product = chargify.findProductByApiHandle( productWithHandleUnderTest.getHandle() );
 
-    Assert.assertTrue( "Product not found", product.isPresent() );
+    Assert.assertNotNull( "Product not found", product );
   }
 
   @Test
   public void productShouldNotBeFoundByInvalidApiHandle()
   {
-    final Optional<Product> product = chargify.findProductByApiHandle( productUnderTest.getHandle() );
+    final Product product = chargify.findProductByApiHandle( productUnderTest.getHandle() );
 
-    Assert.assertFalse( "Product should not be found by invalid ID", product.isPresent() );
+    Assert.assertNull( "Product should not be found by invalid ID", product );
   }
 
   @Test
@@ -98,8 +97,8 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void archiveNonExisting()
   {
-    final Optional<Product> archivedProduct = chargify.archiveProductById( "nonexisting" );
+    final Product archivedProduct = chargify.archiveProductById( "nonexisting" );
 
-    Assert.assertFalse( "Non existing product has been archived", archivedProduct.isPresent() );
+    Assert.assertNull( "Non existing product has been archived", archivedProduct );
   }
 }

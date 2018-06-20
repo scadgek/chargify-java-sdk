@@ -6,9 +6,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class CustomersTest extends ChargifyTest
@@ -37,15 +37,15 @@ public class CustomersTest extends ChargifyTest
   @Test
   public void customerShouldBeFoundByValidId()
   {
-    final Optional<Customer> customer = chargify.findCustomerById( customerUnderTest.getId() );
-    assertTrue( "Customer not found", customer.isPresent() );
+    final Customer customer = chargify.findCustomerById( customerUnderTest.getId() );
+    assertNotNull( "Customer not found", customer );
   }
 
   @Test
   public void customerShouldNotBeFoundByInvalidId()
   {
-    final Optional<Customer> customer = chargify.findCustomerById( "nonexisting" );
-    assertFalse( "Customer should not have been found", customer.isPresent() );
+    final Customer customer = chargify.findCustomerById( "nonexisting" );
+    assertNull( "Customer should not have been found", customer );
   }
 
   @Test
@@ -58,14 +58,14 @@ public class CustomersTest extends ChargifyTest
   @Test
   public void customerShouldBeFoundByValidReference()
   {
-    final Optional<Customer> customer = chargify.findCustomerByReference( customerWithReferenceUnderTest.getReference() );
-    assertTrue( "Customer not found by reference", customer.isPresent() );
+    final Customer customer = chargify.findCustomerByReference( customerWithReferenceUnderTest.getReference() );
+    assertNotNull( "Customer not found by reference", customer );
   }
 
   @Test
   public void customerShouldNotBeFoundByInvalidReference()
   {
-    final Optional<Customer> customer = chargify.findCustomerByReference( "invalid" );
-    assertFalse( "Customer should not have been found", customer.isPresent() );
+    final Customer customer = chargify.findCustomerByReference( "invalid" );
+    assertNull( "Customer should not have been found", customer );
   }
 }

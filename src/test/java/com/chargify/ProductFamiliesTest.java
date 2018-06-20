@@ -7,8 +7,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class ProductFamiliesTest extends ChargifyTest
 {
   private static ProductFamily existingProductFamily;
@@ -34,13 +32,12 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void productFamilyRetrievedByIdShouldHaveProperHandle()
   {
-    final Optional<ProductFamily> retrievedProductFamily =
-            chargify.findProductFamilyById( existingProductFamily.getId() );
+    final ProductFamily retrievedProductFamily = chargify.findProductFamilyById( existingProductFamily.getId() );
 
-    Assert.assertTrue( "Product family not found by ID " + existingProductFamily.getId(),
-                       retrievedProductFamily.isPresent() );
+    Assert.assertNotNull( "Product family not found by ID " + existingProductFamily.getId(),
+                          retrievedProductFamily );
     Assert.assertEquals( "Product family retrieved by ID has wrong product handle",
-                         existingProductFamily.getHandle(), retrievedProductFamily.get().getHandle() );
+                         existingProductFamily.getHandle(), retrievedProductFamily.getHandle() );
   }
 
   @Test
@@ -53,16 +50,16 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void readNonExistingShouldReturnEmptyOptional()
   {
-    final Optional<ProductFamily> maybeProductFamily = chargify.findProductFamilyById( "nonexisting" );
+    final ProductFamily productFamily = chargify.findProductFamilyById( "nonexisting" );
 
-    Assert.assertFalse( "Non existing product family found", maybeProductFamily.isPresent() );
+    Assert.assertNull( "Non existing product family found", productFamily );
   }
 
   @Test
   public void archiveNonExistingShouldReturnEmptyOptional()
   {
-    final Optional<ProductFamily> maybeProductFamily = chargify.archiveProductFamilyById( "nonexisting" );
+    final ProductFamily archivedProductFamily = chargify.archiveProductFamilyById( "nonexisting" );
 
-    Assert.assertFalse( "Non existing product family found", maybeProductFamily.isPresent() );
+    Assert.assertNull( "Non existing product family found", archivedProductFamily );
   }
 }

@@ -9,10 +9,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -70,15 +69,15 @@ public class SubscriptionsTest extends ChargifyTest
   @Test
   public void subscriptionShouldBeFoundByValidId()
   {
-    final Optional<Subscription> subscription = chargify.findSubscriptionById( subscriptionUnderTest.getId() );
-    assertTrue( "Subscription not found", subscription.isPresent() );
+    final Subscription subscription = chargify.findSubscriptionById( subscriptionUnderTest.getId() );
+    assertNotNull( "Subscription not found", subscription );
   }
 
   @Test
   public void subscriptionShoudNotBeFoundByInvalidId()
   {
-    final Optional<Subscription> subscription = chargify.findSubscriptionById( "invalid" );
-    assertFalse( "Subscription should not have been found", subscription.isPresent() );
+    final Subscription subscription = chargify.findSubscriptionById( "invalid" );
+    assertNull( "Subscription should not have been found", subscription );
   }
 
   @Test

@@ -38,7 +38,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
@@ -63,17 +62,17 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<ProductFamily> findProductFamilyById( String id )
+  public ProductFamily findProductFamilyById( String id )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/product_families/" + id + ".json",
-                                                   ProductFamilyWrapper.class )
-                                  .getProductFamily() );
+      return httpClient.getForObject( "/product_families/" + id + ".json",
+                                      ProductFamilyWrapper.class )
+              .getProductFamily();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -86,18 +85,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<ProductFamily> archiveProductFamilyById( String id )
+  public ProductFamily archiveProductFamilyById( String id )
   {
     try
     {
-      return Optional.of( httpClient.exchange( "/product_families/" + id + ".json", HttpMethod.DELETE,
-                                               HttpEntity.EMPTY, ProductFamilyWrapper.class )
+      return httpClient.exchange( "/product_families/" + id + ".json", HttpMethod.DELETE,
+                                  HttpEntity.EMPTY, ProductFamilyWrapper.class )
                                   .getBody()
-                                  .getProductFamily() );
+              .getProductFamily();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -110,31 +109,31 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Product> findProductById( String id )
+  public Product findProductById( String id )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/products/" + id + ".json", ProductWrapper.class )
-                                  .getProduct() );
+      return httpClient.getForObject( "/products/" + id + ".json", ProductWrapper.class )
+              .getProduct();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
   @Override
-  public Optional<Product> findProductByApiHandle( String apiHandle )
+  public Product findProductByApiHandle( String apiHandle )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/products/handle/" + apiHandle + ".json",
-                                                   ProductWrapper.class )
-                                  .getProduct() );
+      return httpClient.getForObject( "/products/handle/" + apiHandle + ".json",
+                                      ProductWrapper.class )
+              .getProduct();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -156,18 +155,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Product> archiveProductById( String id )
+  public Product archiveProductById( String id )
   {
     try
     {
-      return Optional.of( httpClient.exchange( "/products/" + id + ".json", HttpMethod.DELETE,
-                                               HttpEntity.EMPTY, ProductWrapper.class )
+      return httpClient.exchange( "/products/" + id + ".json", HttpMethod.DELETE,
+                                  HttpEntity.EMPTY, ProductWrapper.class )
                                   .getBody()
-                                  .getProduct() );
+              .getProduct();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -180,16 +179,16 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Subscription> findSubscriptionById( String id )
+  public Subscription findSubscriptionById( String id )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/subscriptions/" + id + ".json", SubscriptionWrapper.class )
-                                  .getSubscription() );
+      return httpClient.getForObject( "/subscriptions/" + id + ".json", SubscriptionWrapper.class )
+              .getSubscription();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -221,18 +220,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Subscription> cancelSubscriptionById( String id )
+  public Subscription cancelSubscriptionById( String id )
   {
     try
     {
-      return Optional.of( httpClient.exchange( "/subscriptions/" + id + ".json", HttpMethod.DELETE,
-                                               HttpEntity.EMPTY, SubscriptionWrapper.class )
+      return httpClient.exchange( "/subscriptions/" + id + ".json", HttpMethod.DELETE,
+                                  HttpEntity.EMPTY, SubscriptionWrapper.class )
                                   .getBody()
-                                  .getSubscription() );
+              .getSubscription();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -345,18 +344,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Component> findComponentByIdAndProductFamily( String componentId, String productFamilyId )
+  public Component findComponentByIdAndProductFamily( String componentId, String productFamilyId )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/product_families/" + productFamilyId +
+      return httpClient.getForObject( "/product_families/" + productFamilyId +
                                                            "/components/" + componentId + ".json",
-                                                   AnyComponentWrapper.class )
-                                  .getComponent() );
+                                      AnyComponentWrapper.class )
+              .getComponent();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -370,18 +369,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, String componentId )
+  public SubscriptionComponent findSubscriptionComponentById( String subscriptionId, String componentId )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/subscriptions/" + subscriptionId +
+      return httpClient.getForObject( "/subscriptions/" + subscriptionId +
                                                            "/components/" + componentId + ".json",
-                                                   SubscriptionComponentWrapper.class )
-                                  .getComponent() );
+                                      SubscriptionComponentWrapper.class )
+              .getComponent();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -402,31 +401,31 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<Customer> findCustomerById( String id )
+  public Customer findCustomerById( String id )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/customers/" + id + ".json", CustomerWrapper.class )
-                                  .getCustomer() );
+      return httpClient.getForObject( "/customers/" + id + ".json", CustomerWrapper.class )
+              .getCustomer();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
   @Override
-  public Optional<Customer> findCustomerByReference( String reference )
+  public Customer findCustomerByReference( String reference )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/customers/lookup.json?reference={reference}",
-                                                   CustomerWrapper.class, reference )
-                                  .getCustomer() );
+      return httpClient.getForObject( "/customers/lookup.json?reference={reference}",
+                                      CustomerWrapper.class, reference )
+              .getCustomer();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 
@@ -451,17 +450,17 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Optional<ReferralCode> validateReferralCode( String code )
+  public ReferralCode validateReferralCode( String code )
   {
     try
     {
-      return Optional.of( httpClient.getForObject( "/referral_codes/validate.json?code=" + code,
-                                                   ReferralCodeWrapper.class )
-                                  .getReferralCode() );
+      return httpClient.getForObject( "/referral_codes/validate.json?code=" + code,
+                                      ReferralCodeWrapper.class )
+              .getReferralCode();
     }
     catch( ResourceNotFoundException e )
     {
-      return Optional.empty();
+      return null;
     }
   }
 }
