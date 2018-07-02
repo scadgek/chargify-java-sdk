@@ -4,12 +4,14 @@ import com.chargify.model.Allocation;
 import com.chargify.model.Component;
 import com.chargify.model.ComponentPricePointUpdate;
 import com.chargify.model.Customer;
+import com.chargify.model.Metadata;
 import com.chargify.model.Product;
 import com.chargify.model.ProductFamily;
 import com.chargify.model.ReferralCode;
 import com.chargify.model.RenewalPreview;
 import com.chargify.model.Subscription;
 import com.chargify.model.SubscriptionComponent;
+import com.chargify.model.SubscriptionMetadata;
 import com.chargify.model.Usage;
 
 import java.util.List;
@@ -58,6 +60,12 @@ public interface Chargify
   Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed );
 
   RenewalPreview previewSubscriptionRenewal( String subscriptionId );
+
+  List<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata );
+
+  SubscriptionMetadata readSubscriptionMetadata( String subscriptionId );
+
+  List<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata );
 
   Component createComponent( String productFamilyId, Component component );
 

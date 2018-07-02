@@ -6,6 +6,7 @@ import com.chargify.model.Allocation;
 import com.chargify.model.Component;
 import com.chargify.model.ComponentPricePointUpdate;
 import com.chargify.model.Customer;
+import com.chargify.model.Metadata;
 import com.chargify.model.Migration;
 import com.chargify.model.Product;
 import com.chargify.model.ProductFamily;
@@ -13,12 +14,14 @@ import com.chargify.model.ReferralCode;
 import com.chargify.model.RenewalPreview;
 import com.chargify.model.Subscription;
 import com.chargify.model.SubscriptionComponent;
+import com.chargify.model.SubscriptionMetadata;
 import com.chargify.model.Usage;
 import com.chargify.model.wrappers.AllocationWrapper;
 import com.chargify.model.wrappers.AnyComponentWrapper;
 import com.chargify.model.wrappers.ComponentPricePointUpdatesWrapper;
 import com.chargify.model.wrappers.ComponentWrapper;
 import com.chargify.model.wrappers.CustomerWrapper;
+import com.chargify.model.wrappers.MetadataWrapper;
 import com.chargify.model.wrappers.MeteredComponentWrapper;
 import com.chargify.model.wrappers.MigrationWrapper;
 import com.chargify.model.wrappers.OnOffComponentWrapper;
@@ -288,6 +291,36 @@ public final class ChargifyService implements Chargify
     return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/renewals/preview.json",
                                      HttpEntity.EMPTY, RenewalPreviewWrapper.class )
             .getRenewalPreview();
+  }
+
+  @Override
+  public List<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata )
+  {
+    return Arrays.asList( httpClient.postForObject( "/subscriptions/" + subscriptionId + "/metadata.json",
+                                                    new MetadataWrapper( metadata ), Metadata[].class ) );
+  }
+
+  @Override
+  public SubscriptionMetadata readSubscriptionMetadata( String subscriptionId )
+  {
+    try
+    {
+      return httpClient.getForObject( "/subscriptions/" + subscriptionId + "/metadata.json",
+                                      SubscriptionMetadata.class );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return null;
+    }
+  }
+
+  @Override
+  public List<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata )
+  {
+    return Arrays.asList( httpClient.exchange( "/subscriptions/" + subscriptionId + "/metadata.json",
+                                               HttpMethod.PUT,
+                                               new HttpEntity<>( new MetadataWrapper( metadata ) ), Metadata[].class )
+                                  .getBody() );
   }
 
   @Override
