@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Subscription implements Serializable
@@ -145,6 +147,8 @@ public class Subscription implements Serializable
 
   @JsonProperty( "coupon_uses_allowed" )
   private Integer couponUsesAllowed;
+
+  private Map<String, String> metafields = new HashMap<>();
 
   public String getId()
   {
@@ -602,5 +606,15 @@ public class Subscription implements Serializable
             ", couponUseCount=" + couponUseCount +
             ", couponUsesAllowed=" + couponUsesAllowed +
             '}';
+  }
+
+  public Map<String, String> getMetafields()
+  {
+    return metafields;
+  }
+
+  public void setMetafields( Map<String, String> metafields )
+  {
+    this.metafields = metafields;
   }
 }
