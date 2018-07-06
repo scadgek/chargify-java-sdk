@@ -434,6 +434,15 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Customer updateCustomer( Customer customer )
+  {
+    return httpClient.exchange( "/customers/" + customer.getId() + ".json", HttpMethod.PUT,
+                                new HttpEntity<>( new CustomerWrapper( customer ) ), CustomerWrapper.class )
+            .getBody()
+            .getCustomer();
+  }
+
+  @Override
   public Customer findCustomerById( String id )
   {
     try

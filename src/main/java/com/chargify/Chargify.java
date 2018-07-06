@@ -83,6 +83,8 @@ public interface Chargify
 
   Customer createCustomer( Customer customer );
 
+  Customer updateCustomer( Customer customer );
+
   Customer findCustomerById( String id );
 
   Customer findCustomerByReference( String reference );
