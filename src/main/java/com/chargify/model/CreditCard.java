@@ -64,9 +64,6 @@ public class CreditCard implements Serializable
   @JsonProperty( "billing_country" )
   private String billingCountry;
 
-  @JsonProperty( "payment_profile_id" )
-  private String paymentProfileId;
-
   @JsonProperty( "billing_zip" )
   private String billingZip;
 
@@ -90,16 +87,6 @@ public class CreditCard implements Serializable
   public void setId( String id )
   {
     this.id = id;
-  }
-
-  public String getPaymentProfileId()
-  {
-    return paymentProfileId;
-  }
-
-  public void setPaymentProfileId( String paymentProfileId )
-  {
-    this.paymentProfileId = paymentProfileId;
   }
 
   public String getCardType()
@@ -289,7 +276,6 @@ public class CreditCard implements Serializable
             ", billingCity='" + billingCity + '\'' +
             ", billingState='" + billingState + '\'' +
             ", billingCountry='" + billingCountry + '\'' +
-            ", paymentProfileId='" + paymentProfileId + '\'' +
             ", billingZip='" + billingZip + '\'' +
             ", currentVault='" + currentVault + '\'' +
             ", vaultToken='" + vaultToken + '\'' +

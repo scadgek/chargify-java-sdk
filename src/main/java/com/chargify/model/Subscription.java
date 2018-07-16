@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -120,6 +121,9 @@ public class Subscription implements Serializable
   @JsonProperty( "payment_collection_at" )
   private String paymentCollectionMethod;
 
+  @JsonProperty( "payment_profile_id" )
+  private String paymentProfileId;
+
   @JsonProperty( "snap_day" )
   private String snapDay;
 
@@ -147,6 +151,8 @@ public class Subscription implements Serializable
 
   @JsonProperty( "coupon_uses_allowed" )
   private Integer couponUsesAllowed;
+
+  private List<SubscriptionComponent> components;
 
   private Map<String, String> metafields = new HashMap<>();
 
@@ -560,6 +566,36 @@ public class Subscription implements Serializable
     this.productChangeDelayed = productChangeDelayed;
   }
 
+  public Map<String, String> getMetafields()
+  {
+    return metafields;
+  }
+
+  public void setMetafields( Map<String, String> metafields )
+  {
+    this.metafields = metafields;
+  }
+
+  public List<SubscriptionComponent> getComponents()
+  {
+    return components;
+  }
+
+  public void setComponents( List<SubscriptionComponent> components )
+  {
+    this.components = components;
+  }
+
+  public String getPaymentProfileId()
+  {
+    return paymentProfileId;
+  }
+
+  public void setPaymentProfileId( String paymentProfileId )
+  {
+    this.paymentProfileId = paymentProfileId;
+  }
+
   @Override
   public String toString()
   {
@@ -595,6 +631,7 @@ public class Subscription implements Serializable
             ", delayedCancelAt=" + delayedCancelAt +
             ", couponCode='" + couponCode + '\'' +
             ", paymentCollectionMethod='" + paymentCollectionMethod + '\'' +
+            ", paymentProfileId='" + paymentProfileId + '\'' +
             ", snapDay='" + snapDay + '\'' +
             ", reasonCode='" + reasonCode + '\'' +
             ", customer=" + customer +
@@ -605,16 +642,8 @@ public class Subscription implements Serializable
             ", nextProductId='" + nextProductId + '\'' +
             ", couponUseCount=" + couponUseCount +
             ", couponUsesAllowed=" + couponUsesAllowed +
+            ", components=" + components +
+            ", metafields=" + metafields +
             '}';
-  }
-
-  public Map<String, String> getMetafields()
-  {
-    return metafields;
-  }
-
-  public void setMetafields( Map<String, String> metafields )
-  {
-    this.metafields = metafields;
   }
 }
