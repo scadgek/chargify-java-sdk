@@ -69,7 +69,7 @@ public interface Chargify
 
   Component createComponent( String productFamilyId, Component component );
 
-  Allocation createComponentAllocation( String subscriptionId, String componentId, int quantity, String memo );
+  Allocation createComponentAllocation( String subscriptionId, String componentId, Allocation allocation );
 
   List<Component> findComponentsByProductFamily( String productFamilyId );
 

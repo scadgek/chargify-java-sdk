@@ -120,4 +120,20 @@ public class Allocation
   {
     this.payment = payment;
   }
+
+  @Override
+  public String toString()
+  {
+    return "Allocation{" +
+            "componentId='" + componentId + '\'' +
+            ", subscriptionId='" + subscriptionId + '\'' +
+            ", quantity=" + quantity +
+            ", previousQuantity=" + previousQuantity +
+            ", memo='" + memo + '\'' +
+            ", timestamp=" + timestamp +
+            ", prorationUpgradeScheme='" + prorationUpgradeScheme + '\'' +
+            ", prorationDowngradeScheme='" + prorationDowngradeScheme + '\'' +
+            ", payment=" + payment +
+            '}';
+  }
 }

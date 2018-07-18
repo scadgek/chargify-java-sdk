@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,10 @@ public class Subscription implements Serializable
   private Date currentPeriodEndsAt;
 
   @JsonProperty( "next_assessment_at" )
-  private Date nextAssessmentAt;
+  private ZonedDateTime nextAssessmentAt;
+
+  @JsonProperty( "next_billing_at" )
+  private ZonedDateTime nextBillingAt;
 
   @JsonProperty( "trial_started_at" )
   private Date trialStartedAt;
@@ -224,16 +228,6 @@ public class Subscription implements Serializable
   public void setCurrentPeriodEndsAt( Date currentPeriodEndsAt )
   {
     this.currentPeriodEndsAt = currentPeriodEndsAt;
-  }
-
-  public Date getNextAssessmentAt()
-  {
-    return nextAssessmentAt;
-  }
-
-  public void setNextAssessmentAt( Date nextAssessmentAt )
-  {
-    this.nextAssessmentAt = nextAssessmentAt;
   }
 
   public Date getTrialStartedAt()
@@ -594,6 +588,26 @@ public class Subscription implements Serializable
   public void setPaymentProfileId( String paymentProfileId )
   {
     this.paymentProfileId = paymentProfileId;
+  }
+
+  public ZonedDateTime getNextBillingAt()
+  {
+    return nextBillingAt;
+  }
+
+  public void setNextBillingAt( ZonedDateTime nextBillingAt )
+  {
+    this.nextBillingAt = nextBillingAt;
+  }
+
+  public ZonedDateTime getNextAssessmentAt()
+  {
+    return nextAssessmentAt;
+  }
+
+  public void setNextAssessmentAt( ZonedDateTime nextAssessmentAt )
+  {
+    this.nextAssessmentAt = nextAssessmentAt;
   }
 
   @Override

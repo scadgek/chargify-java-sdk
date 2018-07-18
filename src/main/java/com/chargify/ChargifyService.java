@@ -33,10 +33,12 @@ import com.chargify.model.wrappers.RenewalPreviewWrapper;
 import com.chargify.model.wrappers.SubscriptionComponentWrapper;
 import com.chargify.model.wrappers.SubscriptionWrapper;
 import com.chargify.model.wrappers.UsageWrapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
@@ -54,6 +56,12 @@ public final class ChargifyService implements Chargify
             .basicAuthorization( apiKey, "x" )
             .errorHandler( new ChargifyResponseErrorHandler() )
             .build();
+
+    this.httpClient.getMessageConverters().stream()
+            .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
+            .map( AbstractJackson2HttpMessageConverter.class::cast )
+            .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
+            .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
   }
 
   @Override
@@ -355,12 +363,8 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Allocation createComponentAllocation( String subscriptionId, String componentId, int quantity, String memo )
+  public Allocation createComponentAllocation( String subscriptionId, String componentId, Allocation allocation )
   {
-    final Allocation allocation = new Allocation();
-    allocation.setQuantity( quantity );
-    allocation.setMemo( memo );
-
     return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId +
                                              "/allocations.json",
                                      new AllocationWrapper( allocation ), AllocationWrapper.class )
