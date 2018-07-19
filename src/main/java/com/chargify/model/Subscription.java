@@ -147,6 +147,9 @@ public class Subscription implements Serializable
   @JsonProperty( "referral_code" )
   private String referralCode;
 
+  @JsonProperty( "ref" )
+  private String reference;
+
   @JsonProperty( "next_product_id" )
   private String nextProductId;
 
@@ -610,6 +613,16 @@ public class Subscription implements Serializable
     this.nextAssessmentAt = nextAssessmentAt;
   }
 
+  public String getReference()
+  {
+    return reference;
+  }
+
+  public void setReference( String reference )
+  {
+    this.reference = reference;
+  }
+
   @Override
   public String toString()
   {
@@ -622,6 +635,7 @@ public class Subscription implements Serializable
             ", productVersionNumber=" + productVersionNumber +
             ", currentPeriodEndsAt=" + currentPeriodEndsAt +
             ", nextAssessmentAt=" + nextAssessmentAt +
+            ", nextBillingAt=" + nextBillingAt +
             ", trialStartedAt=" + trialStartedAt +
             ", trialEndedAt=" + trialEndedAt +
             ", activatedAt=" + activatedAt +
@@ -653,6 +667,7 @@ public class Subscription implements Serializable
             ", creditCard=" + creditCard +
             ", paymentType='" + paymentType + '\'' +
             ", referralCode='" + referralCode + '\'' +
+            ", reference='" + reference + '\'' +
             ", nextProductId='" + nextProductId + '\'' +
             ", couponUseCount=" + couponUseCount +
             ", couponUsesAllowed=" + couponUsesAllowed +
