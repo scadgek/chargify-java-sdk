@@ -55,6 +55,8 @@ public final class ChargifyService implements Chargify
             .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
             .basicAuthorization( apiKey, "x" )
             .errorHandler( new ChargifyResponseErrorHandler() )
+            .setConnectTimeout( 70000 )
+            .setReadTimeout( 80000 )
             .build();
 
     this.httpClient.getMessageConverters().stream()
