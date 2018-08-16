@@ -64,6 +64,24 @@ public final class ChargifyService implements Chargify
             .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
   }
 
+  public ChargifyService( final String domain, final String apiKey, int connectTimeoutInMillis,
+                          int readTimeoutInMillis )
+  {
+    this.httpClient = new RestTemplateBuilder()
+            .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
+            .basicAuthorization( apiKey, "x" )
+            .setConnectTimeout( connectTimeoutInMillis )
+            .setReadTimeout( readTimeoutInMillis )
+            .errorHandler( new ChargifyResponseErrorHandler() )
+            .build();
+
+    this.httpClient.getMessageConverters().stream()
+            .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
+            .map( AbstractJackson2HttpMessageConverter.class::cast )
+            .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
+            .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
+  }
+
   @Override
   public ProductFamily createProductFamily( ProductFamily productFamily )
   {
