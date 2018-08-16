@@ -54,6 +54,8 @@ public interface Chargify
 
   Subscription migrateSubscription( String subscriptionId, String productHandle );
 
+  Subscription reactivateSubscription( String subscriptionId );
+
   ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
                                                                       String pricePointHandle );
 

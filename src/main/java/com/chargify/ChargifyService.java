@@ -270,6 +270,15 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Subscription reactivateSubscription( String subscriptionId )
+  {
+    return httpClient.exchange( "/subscriptions/" + subscriptionId + "/reactivate.json", HttpMethod.PUT,
+                                HttpEntity.EMPTY, SubscriptionWrapper.class )
+            .getBody()
+            .getSubscription();
+  }
+
+  @Override
   public ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
                                                                              String pricePointHandle )
   {
