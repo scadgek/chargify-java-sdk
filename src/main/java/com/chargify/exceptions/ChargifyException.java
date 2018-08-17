@@ -9,16 +9,16 @@ public class ChargifyException extends RuntimeException
     super( errorMessage );
   }
 
-  private ChargifyException( Collection<String> errorMessages )
+  private ChargifyException( Collection errorMessages )
   {
-    super( String.join( " && ", errorMessages ) );
+    super( String.join( " && ", errorMessages.toString() ) );
   }
 
-  static ChargifyException fromErrors( Collection<String> errorMessages )
+  static ChargifyException fromErrors( Collection errorMessages )
   {
     if( errorMessages.size() == 1 )
     {
-      return fromError( errorMessages.iterator().next() );
+      return fromError( errorMessages.iterator().next().toString() );
     }
     else
     {

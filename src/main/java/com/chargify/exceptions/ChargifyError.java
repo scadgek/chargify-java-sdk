@@ -23,7 +23,7 @@ public final class ChargifyError
   {
     if( errors instanceof Collection )
     {
-      return ChargifyException.fromErrors( (Collection<String>) errors );
+      return ChargifyException.fromErrors( (Collection) errors );
     }
     else if( errors instanceof Map )
     {
