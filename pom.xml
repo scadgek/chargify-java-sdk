@@ -6,7 +6,7 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>0.2.7</version>
+    <version>0.2.8</version>
     <packaging>jar</packaging>
 
     <name>Chargify SDK for Java</name>
@@ -39,6 +39,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <repo.bkndls_private>backendless_private</repo.bkndls_private>
+        <repo.bkndls_private.url>http://maven.backendless.com/repository/backendless_private/
+        </repo.bkndls_private.url>
     </properties>
 
     <dependencies>
@@ -87,6 +90,17 @@
         </dependency>
 
     </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>${repo.bkndls_private}</id>
+            <url>${repo.bkndls_private.url}snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>${repo.bkndls_private}</id>
+            <url>${repo.bkndls_private.url}</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>

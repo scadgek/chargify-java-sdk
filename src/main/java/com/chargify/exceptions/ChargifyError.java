@@ -14,7 +14,7 @@ public final class ChargifyError
   private final Object errors;
 
   @JsonCreator
-  public ChargifyError( @JsonProperty( "errors" ) Object errors )
+  public ChargifyError( @JsonProperty( "error" ) Object errors )
   {
     this.errors = errors;
   }
