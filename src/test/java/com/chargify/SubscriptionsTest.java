@@ -1,5 +1,6 @@
 package com.chargify;
 
+import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.Product;
 import com.chargify.model.ProductFamily;
@@ -47,7 +48,7 @@ public class SubscriptionsTest extends ChargifyTest
     customerUnderTest = chargify.createCustomer( new Customer( "Andy", "Panda",
                                                                "andypanda@example.com" ) );
 
-    final Subscription subscription = new Subscription();
+    final CreateSubscription subscription = new CreateSubscription();
     subscription.setProductId( productUnderTest.getId() );
     subscription.setCustomerId( customerUnderTest.getId() );
     subscriptionUnderTest = chargify.createSubscription( subscription );

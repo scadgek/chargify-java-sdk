@@ -5,6 +5,7 @@ import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.Allocation;
 import com.chargify.model.Component;
 import com.chargify.model.ComponentPricePointUpdate;
+import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.Metadata;
 import com.chargify.model.Migration;
@@ -20,6 +21,7 @@ import com.chargify.model.wrappers.AllocationWrapper;
 import com.chargify.model.wrappers.AnyComponentWrapper;
 import com.chargify.model.wrappers.ComponentPricePointUpdatesWrapper;
 import com.chargify.model.wrappers.ComponentWrapper;
+import com.chargify.model.wrappers.CreateSubscriptionWrapper;
 import com.chargify.model.wrappers.CustomerWrapper;
 import com.chargify.model.wrappers.MetadataWrapper;
 import com.chargify.model.wrappers.MeteredComponentWrapper;
@@ -200,10 +202,9 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Subscription createSubscription( Subscription subscription )
+  public Subscription createSubscription( CreateSubscription subscription )
   {
-    return httpClient.postForObject( "/subscriptions.json",
-                                     new SubscriptionWrapper( subscription ), SubscriptionWrapper.class )
+    return httpClient.postForObject( "/subscriptions.json", new CreateSubscriptionWrapper( subscription ), SubscriptionWrapper.class )
             .getSubscription();
   }
 

@@ -3,6 +3,7 @@ package com.chargify;
 import com.chargify.model.Allocation;
 import com.chargify.model.Component;
 import com.chargify.model.ComponentPricePointUpdate;
+import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.Metadata;
 import com.chargify.model.Product;
@@ -38,7 +39,7 @@ public interface Chargify
 
   Product archiveProductById( String id );
 
-  Subscription createSubscription( Subscription subscription );
+  Subscription createSubscription( CreateSubscription subscription );
 
   Subscription findSubscriptionById( String id );
 
