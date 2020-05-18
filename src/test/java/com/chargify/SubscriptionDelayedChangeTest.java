@@ -1,5 +1,6 @@
 package com.chargify;
 
+import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.Product;
 import com.chargify.model.ProductFamily;
@@ -37,7 +38,7 @@ public class SubscriptionDelayedChangeTest extends ChargifyTest
 
     customer = chargify.createCustomer( new Customer( randomName(), randomName(), randomEmail() ) );
 
-    final Subscription subscription = new Subscription();
+    final CreateSubscription subscription = new CreateSubscription();
     subscription.setProductId( SubscriptionDelayedChangeTest.initialProduct.getId() );
     subscription.setCustomerId( customer.getId() );
     SubscriptionDelayedChangeTest.subscription = chargify.createSubscription( subscription );
