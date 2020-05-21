@@ -1,19 +1,6 @@
 package com.chargify;
 
-import com.chargify.model.Allocation;
-import com.chargify.model.Component;
-import com.chargify.model.ComponentPricePointUpdate;
-import com.chargify.model.CreateSubscription;
-import com.chargify.model.Customer;
-import com.chargify.model.Metadata;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
-import com.chargify.model.ReferralCode;
-import com.chargify.model.RenewalPreview;
-import com.chargify.model.Subscription;
-import com.chargify.model.SubscriptionComponent;
-import com.chargify.model.SubscriptionMetadata;
-import com.chargify.model.Usage;
+import com.chargify.model.*;
 
 import java.util.List;
 
@@ -97,4 +84,6 @@ public interface Chargify
   void deleteCustomerById( String id );
 
   ReferralCode validateReferralCode( String code );
+
+  Adjustment adjust( String subscriptionId, Adjustment adjustment );
 }

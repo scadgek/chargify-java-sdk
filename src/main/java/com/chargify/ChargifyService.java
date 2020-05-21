@@ -2,39 +2,8 @@ package com.chargify;
 
 import com.chargify.exceptions.ChargifyResponseErrorHandler;
 import com.chargify.exceptions.ResourceNotFoundException;
-import com.chargify.model.Allocation;
-import com.chargify.model.Component;
-import com.chargify.model.ComponentPricePointUpdate;
-import com.chargify.model.CreateSubscription;
-import com.chargify.model.Customer;
-import com.chargify.model.Metadata;
-import com.chargify.model.Migration;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
-import com.chargify.model.ReferralCode;
-import com.chargify.model.RenewalPreview;
-import com.chargify.model.Subscription;
-import com.chargify.model.SubscriptionComponent;
-import com.chargify.model.SubscriptionMetadata;
-import com.chargify.model.Usage;
-import com.chargify.model.wrappers.AllocationWrapper;
-import com.chargify.model.wrappers.AnyComponentWrapper;
-import com.chargify.model.wrappers.ComponentPricePointUpdatesWrapper;
-import com.chargify.model.wrappers.ComponentWrapper;
-import com.chargify.model.wrappers.CreateSubscriptionWrapper;
-import com.chargify.model.wrappers.CustomerWrapper;
-import com.chargify.model.wrappers.MetadataWrapper;
-import com.chargify.model.wrappers.MeteredComponentWrapper;
-import com.chargify.model.wrappers.MigrationWrapper;
-import com.chargify.model.wrappers.OnOffComponentWrapper;
-import com.chargify.model.wrappers.ProductFamilyWrapper;
-import com.chargify.model.wrappers.ProductWrapper;
-import com.chargify.model.wrappers.QuantityBasedComponentWrapper;
-import com.chargify.model.wrappers.ReferralCodeWrapper;
-import com.chargify.model.wrappers.RenewalPreviewWrapper;
-import com.chargify.model.wrappers.SubscriptionComponentWrapper;
-import com.chargify.model.wrappers.SubscriptionWrapper;
-import com.chargify.model.wrappers.UsageWrapper;
+import com.chargify.model.*;
+import com.chargify.model.wrappers.*;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -536,5 +505,14 @@ public final class ChargifyService implements Chargify
     {
       return null;
     }
+  }
+
+  @Override
+  public Adjustment adjust( String subscriptionId, Adjustment adjustment )
+  {
+    return httpClient.exchange( "/subscriptions/" + subscriptionId + "/adjustments.json", HttpMethod.POST,
+                                new HttpEntity<>( new AdjustmentWrapper( adjustment ) ), AdjustmentWrapper.class )
+            .getBody()
+            .getAdjustment();
   }
 }
