@@ -11,7 +11,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -267,6 +269,19 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Subscription reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData )
+  {
+    return httpClient.exchange(
+            prepareSubscriptionReactivationURI( subscriptionId, reactivationData ),
+            HttpMethod.PUT,
+            HttpEntity.EMPTY,
+            SubscriptionWrapper.class
+    )
+            .getBody()
+            .getSubscription();
+  }
+
+  @Override
   public ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
                                                                              String pricePointHandle )
   {
@@ -514,5 +529,27 @@ public final class ChargifyService implements Chargify
                                 new HttpEntity<>( new AdjustmentWrapper( adjustment ) ), AdjustmentWrapper.class )
             .getBody()
             .getAdjustment();
+  }
+
+  private String prepareSubscriptionReactivationURI( String subscriptionId, SubscriptionReactivationData reactivationData )
+  {
+    StringBuilder urlBuilder = new StringBuilder( "/subscriptions/" ).append( subscriptionId ).append( "/reactivate.json" );
+
+    urlBuilder.append( "?include_trial=" ).append( reactivationData.isIncludeTrial() ? "1" : "0" );
+    urlBuilder.append( "&preserve_balance=" ).append( reactivationData.isPreserveBalance() ? "1" : "0" );
+    if( reactivationData.getCouponCode() != null )
+    {
+      urlBuilder.append( "&coupon_code=" ).append( UriUtils.encode( reactivationData.getCouponCode(), StandardCharsets.UTF_8 ) );
+    }
+    if( reactivationData.getResume() != null )
+    {
+      urlBuilder.append( "&resume=" ).append( reactivationData.getResume() ? "true" : "false" );
+    }
+    if( reactivationData.isForgiveBalance() )
+    {
+      urlBuilder.append( "&resume%5Bforgive_balance%5D=" ).append( reactivationData.isForgiveBalance() ? "true" : "false" );
+    }
+
+    return urlBuilder.toString();
   }
 }
