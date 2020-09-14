@@ -14,8 +14,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
@@ -177,6 +181,31 @@ public final class ChargifyService implements Chargify
   {
     return httpClient.postForObject( "/subscriptions.json", new CreateSubscriptionWrapper( subscription ), SubscriptionWrapper.class )
             .getSubscription();
+  }
+
+  @Override
+  public void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate )
+  {
+    httpClient.put(
+            "/subscriptions/" + subscriptionId + ".json",
+            Map.of(
+                    "subscription",
+                    Map.of(
+                            "next_billing_at",
+                            nextBillingDate.atZone( ZoneId.systemDefault() )
+                                    .withZoneSameInstant( ZoneId.of( "UTC" ) )
+                                    .toLocalDateTime()
+                                    .format( DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'") ) )
+            )
+    );
+  }
+
+  @Override
+  public SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge )
+  {
+    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/charges.json",
+                                     Map.of( "charge", subscriptionCharge ), SubscriptionChargeWrapper.class )
+            .getSubscriptionChargeResult();
   }
 
   @Override

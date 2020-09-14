@@ -2,6 +2,7 @@ package com.chargify;
 
 import com.chargify.model.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface Chargify
@@ -27,6 +28,10 @@ public interface Chargify
   Product archiveProductById( String id );
 
   Subscription createSubscription( CreateSubscription subscription );
+
+  void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate );
+
+  SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );
 
   Subscription findSubscriptionById( String id );
 
