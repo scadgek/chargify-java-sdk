@@ -67,4 +67,6 @@ public class CreateSubscription implements Serializable
   private List<SubscriptionComponent> components;
 
   private Map<String, String> metafields = new HashMap<>();
+
+  private String currency;
 }
