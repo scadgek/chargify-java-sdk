@@ -2,38 +2,32 @@ package com.chargify.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public final class ComponentPricePointUpdate
 {
-  private final int componentId;
-  private final String pricePointHandle;
+  @JsonProperty( "component_id" )
+  private int componentId;
+  @JsonProperty( "price_point" )
+  private String pricePointHandle;
+  @JsonProperty( value = "message" )
+  private String message;
 
   @JsonCreator
-  public ComponentPricePointUpdate( @JsonProperty( "component_id" ) int componentId,
-                                    @JsonProperty( "price_point" ) String pricePointHandle )
+  public ComponentPricePointUpdate()
+  {
+  }
+
+  public ComponentPricePointUpdate( int componentId, String pricePointHandle )
+  {
+    this( componentId, pricePointHandle, null );
+  }
+
+  public ComponentPricePointUpdate( int componentId, String pricePointHandle, String message )
   {
     this.componentId = componentId;
     this.pricePointHandle = pricePointHandle;
-  }
-
-  @JsonProperty( "component_id" )
-  public int getComponentId()
-  {
-    return componentId;
-  }
-
-  @JsonProperty( "price_point" )
-  public String getPricePointHandle()
-  {
-    return pricePointHandle;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "ComponentPricePointUpdate{" +
-            "componentId='" + componentId + '\'' +
-            ", pricePointHandle='" + pricePointHandle + '\'' +
-            '}';
+    this.message = message;
   }
 }

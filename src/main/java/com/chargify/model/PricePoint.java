@@ -1,63 +1,35 @@
 package com.chargify.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 public final class PricePoint implements Serializable
 {
+  private Integer id;
+  @JsonProperty( "default" )
+  private boolean defaultPricePoint = false;
   private String name;
   private String handle;
-  private String pricingScheme;
-  private Price[] prices;
-
-  @JsonCreator
-  public PricePoint()
-  {
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public void setName( String name )
-  {
-    this.name = name;
-  }
-
-  public String getHandle()
-  {
-    return handle;
-  }
-
-  public void setHandle( String handle )
-  {
-    this.handle = handle;
-  }
-
   @JsonProperty( "pricing_scheme" )
-  public String getPricingScheme()
-  {
-    return pricingScheme;
-  }
-
-  public void setPricingScheme( String pricingScheme )
-  {
-    this.pricingScheme = pricingScheme;
-  }
-
-  @JsonProperty( "prices" )
-  public Price[] getPrices()
-  {
-    return prices;
-  }
-
-  public void setPrices( Price[] prices )
-  {
-    this.prices = prices;
-  }
+  private String pricingScheme;
+  @JsonProperty( "component_id" )
+  private String componentId;
+  @JsonProperty( "archived_at" )
+  private String archivedAt;
+  @JsonProperty( "created_at" )
+  private String createdAt;
+  @JsonProperty( "updated_at" )
+  private String updatedAt;
+  @JsonProperty( "use_site_exchange_rate" )
+  private Boolean useSiteExchangeRate;
+  private Price[] prices;
 }

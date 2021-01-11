@@ -18,6 +18,7 @@
 
 package com.chargify.model;
 
+import com.chargify.model.product.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

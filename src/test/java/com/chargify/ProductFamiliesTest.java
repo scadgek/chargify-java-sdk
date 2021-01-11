@@ -1,7 +1,7 @@
 package com.chargify;
 
 import com.chargify.exceptions.ApiHandleNotUniqueException;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.product.ProductFamily;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

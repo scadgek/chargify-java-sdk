@@ -4,16 +4,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class Migration
+public class SubscriptionProductUpdate implements Serializable
 {
+
   @JsonProperty( "product_handle" )
   private String productHandle;
 
-  @JsonProperty( "include_trial")
-  private Integer includeTrial;
+  @JsonProperty( "product_change_delayed" )
+  private boolean changeDelayed;
 
-  @JsonProperty( "product_price_point_handle")
+  @JsonProperty( "product_price_point_handle" )
   private String pricePointHandle;
 }
