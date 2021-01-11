@@ -507,6 +507,13 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public ComponentWithPricePoints findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId )
+  {
+    return new ComponentWithPricePoints( findComponentByIdAndProductFamily( componentId, productFamilyId ),
+                                         findComponentPricePoints( componentId ) );
+  }
+
+  @Override
   public List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId )
   {
     return Arrays.stream( httpClient.getForObject( "/subscriptions/" + subscriptionId + "/components.json",

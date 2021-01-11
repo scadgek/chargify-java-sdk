@@ -86,6 +86,8 @@ public interface Chargify
 
   Component findComponentByIdAndProductFamily( int componentId, String productFamilyId );
 
+  ComponentWithPricePoints findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId );
+
   List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId );
 
   SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId );
