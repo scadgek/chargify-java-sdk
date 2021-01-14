@@ -482,6 +482,15 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public AllocationPreview previewComponentAllocation( String subscriptionId, int componentId, int quantity )
+  {
+    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/allocations/preview.json",
+                                     Map.of( "allocations", List.of( new AllocationPreview.ComponentAllocationDTO( componentId, quantity ) ) ),
+                                     AllocationPreviewWrapper.class )
+            .getAllocationPreview();
+  }
+
+  @Override
   public List<Component> findComponentsByProductFamily( String productFamilyId )
   {
     return Arrays.stream( httpClient.getForObject( "/product_families/" + productFamilyId + "/components.json",
