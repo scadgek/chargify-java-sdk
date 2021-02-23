@@ -1,6 +1,7 @@
 package com.chargify;
 
 import com.chargify.exceptions.ChargifyException;
+import com.chargify.model.IntervalUnit;
 import com.chargify.model.Product;
 import com.chargify.model.ProductFamily;
 import org.junit.AfterClass;
@@ -23,9 +24,9 @@ public class ProductsTest extends ChargifyTest
 
     productUnderTest = chargify.createProduct( productFamilyUnderTest.getId(),
                                                new Product( randomName(), 0, 1,
-                                                            Product.IntervalUnit.month ) );
+                                                            IntervalUnit.month ) );
 
-    final Product productWithHandle = new Product( randomName(), 0, 1, Product.IntervalUnit.month );
+    final Product productWithHandle = new Product( randomName(), 0, 1, IntervalUnit.month );
     productWithHandle.setHandle( randomName() );
     productWithHandleUnderTest = chargify.createProduct( productFamilyUnderTest.getId(), productWithHandle );
   }

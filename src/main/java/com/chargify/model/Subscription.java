@@ -138,7 +138,7 @@ public class Subscription implements Serializable
 
   private Customer customer;
 
-  private Product product;
+  private SubscriptionProduct product;
 
   @JsonProperty( "credit_card" )
   private CreditCard creditCard;
@@ -154,6 +154,12 @@ public class Subscription implements Serializable
 
   @JsonProperty( "next_product_id" )
   private String nextProductId;
+
+  @JsonProperty( "next_product_handle" )
+  private String nextProductHandle;
+
+  @JsonProperty( "next_product_price_point_id" )
+  private String nextProductPricePointId;
 
   @JsonProperty( "coupon_use_count" )
   private Integer couponUseCount;
