@@ -2,7 +2,6 @@ package com.chargify;
 
 import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
-import com.chargify.model.IntervalUnit;
 import com.chargify.model.PricePointIntervalUnit;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;

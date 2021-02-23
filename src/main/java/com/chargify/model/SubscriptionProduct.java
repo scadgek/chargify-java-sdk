@@ -1,5 +1,6 @@
 package com.chargify.model;
 
+import com.chargify.model.product.BaseProduct;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +10,6 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @ToString
@@ -24,7 +24,7 @@ public class SubscriptionProduct extends BaseProduct implements Serializable
   public SubscriptionProduct( @JsonProperty( "name" ) final String name,
                               @JsonProperty( "price" ) final int priceInCents,
                               @JsonProperty( "interval" ) final int recurringInterval,
-                              @JsonProperty( "interval_unit" ) final IntervalUnit intervalUnit )
+                              @JsonProperty( "interval_unit" ) final PricePointIntervalUnit intervalUnit )
   {
     this.name = name;
     this.priceInCents = priceInCents;

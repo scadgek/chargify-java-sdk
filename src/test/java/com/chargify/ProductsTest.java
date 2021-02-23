@@ -1,7 +1,6 @@
 package com.chargify;
 
 import com.chargify.exceptions.ChargifyException;
-import com.chargify.model.IntervalUnit;
 import com.chargify.model.PricePointIntervalUnit;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;

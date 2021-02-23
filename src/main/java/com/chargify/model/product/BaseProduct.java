@@ -1,5 +1,7 @@
-package com.chargify.model;
+package com.chargify.model.product;
 
+import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.PublicSignupPage;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -49,7 +51,7 @@ public abstract class BaseProduct implements Serializable
   protected int recurringInterval;
 
   @JsonProperty( "interval_unit" )
-  protected IntervalUnit intervalUnit;
+  protected PricePointIntervalUnit intervalUnit;
 
   @JsonProperty( "initial_charge_in_cents" )
   protected String initialChargeInCents;
