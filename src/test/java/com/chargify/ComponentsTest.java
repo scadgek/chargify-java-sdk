@@ -2,7 +2,7 @@ package com.chargify;
 
 import com.chargify.model.Component;
 import com.chargify.model.ComponentKind;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.product.ProductFamily;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

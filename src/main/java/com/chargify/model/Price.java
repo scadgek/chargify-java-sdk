@@ -3,9 +3,11 @@ package com.chargify.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 
 import java.io.Serializable;
 
+@AllArgsConstructor
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public final class Price implements Serializable
 {

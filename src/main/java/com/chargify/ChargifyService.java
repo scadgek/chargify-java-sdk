@@ -3,6 +3,9 @@ package com.chargify;
 import com.chargify.exceptions.ChargifyResponseErrorHandler;
 import com.chargify.exceptions.ResourceNotFoundException;
 import com.chargify.model.*;
+import com.chargify.model.product.Product;
+import com.chargify.model.product.ProductFamily;
+import com.chargify.model.product.ProductPricePoint;
 import com.chargify.model.wrappers.*;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -20,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
@@ -136,6 +140,36 @@ public final class ChargifyService implements Chargify
       return httpClient.getForObject( "/products/handle/" + apiHandle + ".json",
                                       ProductWrapper.class )
               .getProduct();
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return null;
+    }
+  }
+
+  @Override
+  public Set<ProductPricePoint> findProductPricePointsByProductId( String productId )
+  {
+    try
+    {
+      return httpClient.getForObject(
+              "/products/" + productId + "/price_points.json", ProductPricePointsWrapper.class )
+              .getPricePoints();
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return null;
+    }
+  }
+
+  @Override
+  public Set<PricePoint> findComponentPricePoints( int componentId )
+  {
+    try
+    {
+      return httpClient.getForObject(
+              "/components/" + componentId + "/price_points.json", ComponentPricePointsWrapper.class )
+              .getPricePoints();
     }
     catch( ResourceNotFoundException e )
     {
@@ -289,6 +323,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Subscription migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle )
+  {
+    final Migration migration = new Migration();
+    migration.setProductHandle( productHandle );
+    migration.setPricePointHandle( pricePointHandle );
+
+    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/migrations.json",
+                                     new MigrationWrapper( migration ), SubscriptionWrapper.class )
+            .getSubscription();
+  }
+
+  @Override
   public Subscription reactivateSubscription( String subscriptionId )
   {
     return httpClient.exchange( "/subscriptions/" + subscriptionId + "/reactivate.json", HttpMethod.PUT,
@@ -316,20 +362,43 @@ public final class ChargifyService implements Chargify
   {
     return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/price_points.json",
                                      new ComponentPricePointUpdatesWrapper(
-                                             new ComponentPricePointUpdate( componentId, pricePointHandle ) ),
+                                             List.of( new ComponentPricePointUpdate( componentId, pricePointHandle ) ) ),
                                      ComponentPricePointUpdatesWrapper.class )
-            .getPricePointUpdates()[ 0 ];
+            .getPricePointUpdates().get( 0 );
+  }
+
+  @Override
+  public List<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId, List<ComponentPricePointUpdate> items )
+  {
+    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/price_points.json",
+                                     new ComponentPricePointUpdatesWrapper( items ),
+                                     ComponentPricePointUpdatesWrapper.class )
+            .getPricePointUpdates();
   }
 
   @Override
   public Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed )
   {
-    final Subscription subscription = new Subscription();
-    subscription.setProductHandle( productHandle );
-    subscription.setProductChangeDelayed( delayed );
+    final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
+    productUpdate.setProductHandle( productHandle );
+    productUpdate.setChangeDelayed( delayed );
 
     return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
-                                new HttpEntity<>( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
+                                new HttpEntity<>( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionWrapper.class )
+            .getBody()
+            .getSubscription();
+  }
+
+  @Override
+  public Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed )
+  {
+    final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
+    productUpdate.setProductHandle( productHandle );
+    productUpdate.setChangeDelayed( delayed );
+    productUpdate.setPricePointHandle( pricePointHandle );
+
+    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
+                                new HttpEntity<>( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionWrapper.class )
             .getBody()
             .getSubscription();
   }
@@ -404,12 +473,21 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Allocation createComponentAllocation( String subscriptionId, String componentId, Allocation allocation )
+  public Allocation createComponentAllocation( String subscriptionId, int componentId, Allocation allocation )
   {
     return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId +
                                              "/allocations.json",
                                      new AllocationWrapper( allocation ), AllocationWrapper.class )
             .getAllocation();
+  }
+
+  @Override
+  public AllocationPreview previewComponentAllocation( String subscriptionId, int componentId, int quantity )
+  {
+    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/allocations/preview.json",
+                                     Map.of( "allocations", List.of( new AllocationPreview.ComponentAllocationDTO( componentId, quantity ) ) ),
+                                     AllocationPreviewWrapper.class )
+            .getAllocationPreview();
   }
 
   @Override
@@ -422,7 +500,7 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Component findComponentByIdAndProductFamily( String componentId, String productFamilyId )
+  public Component findComponentByIdAndProductFamily( int componentId, String productFamilyId )
   {
     try
     {
@@ -438,6 +516,13 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public ComponentWithPricePoints findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId )
+  {
+    return new ComponentWithPricePoints( findComponentByIdAndProductFamily( componentId, productFamilyId ),
+                                         findComponentPricePoints( componentId ) );
+  }
+
+  @Override
   public List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId )
   {
     return Arrays.stream( httpClient.getForObject( "/subscriptions/" + subscriptionId + "/components.json",
@@ -447,7 +532,7 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public SubscriptionComponent findSubscriptionComponentById( String subscriptionId, String componentId )
+  public SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId )
   {
     try
     {
@@ -463,7 +548,7 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Usage reportSubscriptionComponentUsage( String subscriptionId, String componentId, Usage usage )
+  public Usage reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage )
   {
     return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId +
                                              "/usages.json",
