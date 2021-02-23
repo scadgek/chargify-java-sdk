@@ -3,8 +3,9 @@ package com.chargify;
 import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.IntervalUnit;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.product.Product;
+import com.chargify.model.product.ProductFamily;
 import com.chargify.model.Subscription;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,12 +27,12 @@ public class SubscriptionDelayedChangeTest extends ChargifyTest
   {
     productFamily = chargify.createProductFamily( new ProductFamily( randomName() ) );
 
-    final Product initialProduct = new Product( randomName(), 0, 1, IntervalUnit.month );
+    final Product initialProduct = new Product( randomName(), 0, 1, PricePointIntervalUnit.month );
     initialProduct.setRequestCreditCard( false );
     initialProduct.setRequireCreditCard( false );
     SubscriptionDelayedChangeTest.initialProduct = chargify.createProduct( productFamily.getId(), initialProduct );
 
-    final Product targetProduct = new Product( randomName(), 0, 1, IntervalUnit.month );
+    final Product targetProduct = new Product( randomName(), 0, 1, PricePointIntervalUnit.month );
     targetProduct.setRequestCreditCard( false );
     targetProduct.setRequireCreditCard( false );
     targetProduct.setHandle( randomName() );

@@ -1,6 +1,6 @@
 package com.chargify.model.wrappers;
 
-import com.chargify.model.ProductFamily;
+import com.chargify.model.product.ProductFamily;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -28,7 +28,7 @@ import java.io.Serializable;
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Component implements Serializable
 {
-  private String id;
+  private Integer id;
 
   private String name;
 

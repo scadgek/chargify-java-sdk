@@ -2,8 +2,9 @@ package com.chargify;
 
 import com.chargify.exceptions.ChargifyException;
 import com.chargify.model.IntervalUnit;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.product.Product;
+import com.chargify.model.product.ProductFamily;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -24,9 +25,9 @@ public class ProductsTest extends ChargifyTest
 
     productUnderTest = chargify.createProduct( productFamilyUnderTest.getId(),
                                                new Product( randomName(), 0, 1,
-                                                            IntervalUnit.month ) );
+                                                            PricePointIntervalUnit.month ) );
 
-    final Product productWithHandle = new Product( randomName(), 0, 1, IntervalUnit.month );
+    final Product productWithHandle = new Product( randomName(), 0, 1, PricePointIntervalUnit.month );
     productWithHandle.setHandle( randomName() );
     productWithHandleUnderTest = chargify.createProduct( productFamilyUnderTest.getId(), productWithHandle );
   }

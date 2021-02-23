@@ -3,8 +3,9 @@ package com.chargify;
 import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.IntervalUnit;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.product.Product;
+import com.chargify.model.product.ProductFamily;
 import com.chargify.model.Subscription;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,7 +33,7 @@ public class SubscriptionsTest extends ChargifyTest
   {
     productFamilyUnderTest = chargify.createProductFamily( new ProductFamily( randomName() ) );
 
-    final Product product = new Product( randomName(), 0, 1, IntervalUnit.month );
+    final Product product = new Product( randomName(), 0, 1, PricePointIntervalUnit.month );
     product.setRequestCreditCard( false );
     product.setRequireCreditCard( false );
     productUnderTest = chargify.createProduct( productFamilyUnderTest.getId(), product );

@@ -16,7 +16,7 @@
  *  ********************************************************************************************************************
  */
 
-package com.chargify.model;
+package com.chargify.model.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,4 +1,4 @@
-package com.chargify.model;
+package com.chargify.model.product;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;

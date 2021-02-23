@@ -20,14 +20,16 @@ package com.chargify.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.io.Serializable;
 
+@Data
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class SubscriptionComponent implements Serializable
 {
   @JsonProperty( "component_id" )
-  private String componentId;
+  private Integer componentId;
 
   @JsonProperty( "subscription_id" )
   private String subscriptionId;
@@ -51,93 +53,9 @@ public class SubscriptionComponent implements Serializable
   @JsonProperty( "allocated_quantity" )
   private Integer allocatedQuantity;
 
-  public String getComponentId()
-  {
-    return componentId;
-  }
+  @JsonProperty( "price_point_id" )
+  private Integer pricePointId;
 
-  public void setComponentId( String componentId )
-  {
-    this.componentId = componentId;
-  }
-
-  public String getSubscriptionId()
-  {
-    return subscriptionId;
-  }
-
-  public void setSubscriptionId( String subscriptionId )
-  {
-    this.subscriptionId = subscriptionId;
-  }
-
-  public Integer getUnitBalance()
-  {
-    return unitBalance;
-  }
-
-  public void setUnitBalance( Integer unitBalance )
-  {
-    this.unitBalance = unitBalance;
-  }
-
-  public String getPricingScheme()
-  {
-    return pricingScheme;
-  }
-
-  public void setPricingScheme( String pricingScheme )
-  {
-    this.pricingScheme = pricingScheme;
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public void setName( String name )
-  {
-    this.name = name;
-  }
-
-  public ComponentKind getKind()
-  {
-    return kind;
-  }
-
-  public void setKind( ComponentKind kind )
-  {
-    this.kind = kind;
-  }
-
-  public String getUnitName()
-  {
-    return unitName;
-  }
-
-  public void setUnitName( String unitName )
-  {
-    this.unitName = unitName;
-  }
-
-  public Boolean getEnabled()
-  {
-    return enabled;
-  }
-
-  public void setEnabled( Boolean enabled )
-  {
-    this.enabled = enabled;
-  }
-
-  public Integer getAllocatedQuantity()
-  {
-    return allocatedQuantity;
-  }
-
-  public void setAllocatedQuantity( Integer allocatedQuantity )
-  {
-    this.allocatedQuantity = allocatedQuantity;
-  }
+  @JsonProperty( "price_point_handle" )
+  private String pricePointHandle;
 }
