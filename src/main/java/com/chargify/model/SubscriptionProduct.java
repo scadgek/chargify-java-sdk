@@ -19,6 +19,8 @@ public class SubscriptionProduct extends BaseProduct implements Serializable
 {
   @JsonProperty( "archived_at" )
   private Date archivedAt;
+  @JsonProperty( "product_price_point_handle" )
+  private String productPricePointHandle;
 
   @JsonCreator
   public SubscriptionProduct( @JsonProperty( "name" ) final String name,

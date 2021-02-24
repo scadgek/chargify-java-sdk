@@ -18,7 +18,6 @@
 
 package com.chargify.model;
 
-import com.chargify.model.product.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -160,7 +159,7 @@ public class Subscription implements Serializable
   private String nextProductHandle;
 
   @JsonProperty( "next_product_price_point_id" )
-  private String nextProductPricePointId;
+  private Integer nextProductPricePointId;
 
   @JsonProperty( "coupon_use_count" )
   private Integer couponUseCount;
