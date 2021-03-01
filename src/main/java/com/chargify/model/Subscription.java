@@ -109,9 +109,6 @@ public class Subscription implements Serializable
   @JsonProperty( "product_handle" )
   private String productHandle;
 
-  @JsonProperty( "product_id" )
-  private String productId;
-
   @JsonProperty( "signup_payment_id" )
   private Integer signupPaymentId;
 
