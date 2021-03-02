@@ -66,6 +66,8 @@ public interface Chargify
 
   List<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId, List<ComponentPricePointUpdate> items );
 
+  Subscription cancelScheduledSubscriptionProductChange( String subscriptionId );
+
   Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed );
 
   Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed );

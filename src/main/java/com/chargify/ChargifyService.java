@@ -390,6 +390,23 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Subscription cancelScheduledSubscriptionProductChange( String subscriptionId )
+  {
+    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
+                                new HttpEntity<>(
+                                        Map.of(
+                                                "subscription",
+                                                Map.of(
+                                                        "next_product_id", "",
+                                                        "next_product_price_point_id", ""
+                                                )
+                                        )
+                                ), SubscriptionWrapper.class )
+            .getBody()
+            .getSubscription();
+  }
+
+  @Override
   public Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed )
   {
     final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
