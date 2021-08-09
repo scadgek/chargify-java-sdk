@@ -57,7 +57,7 @@ public interface Chargify
 
   Subscription migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle );
 
-  Subscription reactivateSubscription( String subscriptionId );
+  Subscription reactivateSubscription( String subscriptionId, boolean preserveBalance );
 
   Subscription reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData );
 

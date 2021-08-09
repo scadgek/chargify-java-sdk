@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +35,7 @@ public final class ChargifyService implements Chargify
   {
     this.httpClient = new RestTemplateBuilder()
             .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-            .basicAuthorization( apiKey, "x" )
+            .basicAuthentication( apiKey, "x" )
             .errorHandler( new ChargifyResponseErrorHandler() )
             .build();
 
@@ -50,9 +51,9 @@ public final class ChargifyService implements Chargify
   {
     this.httpClient = new RestTemplateBuilder()
             .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-            .basicAuthorization( apiKey, "x" )
-            .setConnectTimeout( connectTimeoutInMillis )
-            .setReadTimeout( readTimeoutInMillis )
+            .basicAuthentication( apiKey, "x" )
+            .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
+            .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
             .errorHandler( new ChargifyResponseErrorHandler() )
             .build();
 
@@ -335,10 +336,11 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Subscription reactivateSubscription( String subscriptionId )
+  public Subscription reactivateSubscription( String subscriptionId, boolean preserveBalance )
   {
     return httpClient.exchange( "/subscriptions/" + subscriptionId + "/reactivate.json", HttpMethod.PUT,
-                                HttpEntity.EMPTY, SubscriptionWrapper.class )
+                                new HttpEntity<>( Map.of( "preserve_balance", preserveBalance ) ),
+                                SubscriptionWrapper.class )
             .getBody()
             .getSubscription();
   }
