@@ -1,5 +1,6 @@
 package com.chargify.exceptions;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,7 +15,7 @@ public final class ChargifyError
   private final Object errors;
 
   @JsonCreator
-  public ChargifyError( @JsonProperty( "errors" ) Object errors )
+  public ChargifyError( @JsonProperty( "errors" ) @JsonAlias( "error" ) Object errors )
   {
     this.errors = errors;
   }
