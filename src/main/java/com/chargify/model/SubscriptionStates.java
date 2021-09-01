@@ -16,4 +16,5 @@ public final class SubscriptionStates
   public static final String TRAILING = "trialing";
   public static final String TRIAL_ENDED = "trial_ended";
   public static final String UNPAID = "unpaid";
+  public static final String SUSPENDED = "suspended";
 }
