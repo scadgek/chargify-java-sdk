@@ -277,7 +277,7 @@ public final class ChargifyService implements Chargify
   @Override
   public Subscription purgeSubscription( Subscription subscription )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscription.getId() + "/purge.json?ack=" + subscription.getCustomerId() +
+    return httpClient.postForObject( "/subscriptions/" + subscription.getId() + "/purge.json?ack=" + subscription.getCustomer().getId() +
                                   "&cascade[]=customer&cascade[]=payment_profile",
                               HttpEntity.EMPTY, SubscriptionWrapper.class )
         .getSubscription();
