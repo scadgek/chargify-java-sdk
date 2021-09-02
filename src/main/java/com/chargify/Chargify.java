@@ -47,6 +47,8 @@ public interface Chargify
 
   List<Subscription> findAllSubscriptions();
 
+  Subscription purgeSubscription( Subscription subscription );
+
   List<Subscription> findSubscriptionsByState( String state, int pageNumber, int pageSize );
 
   Subscription cancelSubscriptionById( String id );
