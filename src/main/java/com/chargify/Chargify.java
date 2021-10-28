@@ -108,6 +108,15 @@ public interface Chargify
 
   Customer findCustomerByReference( String reference );
 
+  /**
+   * Search to retrieve a single or group of customers.
+   *
+   * @param criterion (string or integer) - can be email, Chargify ID, Reference (Your App), Organization
+   * @param pageNumber (start from 1) the page parameter via the query string to access subsequent pages of 50 transactions
+   * @return List of customers
+   */
+  List<Customer> findCustomersBy( Object criterion, int pageNumber );
+
   List<Customer> findAllCustomers();
 
   void deleteCustomerById( String id );

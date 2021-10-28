@@ -630,6 +630,15 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public List<Customer> findCustomersBy( Object criterion, int pageNumber )
+  {
+    return Arrays.stream( httpClient.getForObject( "/customers.json?q={criterion}&page={pageNumber}",
+                                                   CustomerWrapper[].class, criterion, pageNumber ) )
+        .map( CustomerWrapper::getCustomer )
+        .collect( Collectors.toList() );
+  }
+
+  @Override
   public List<Customer> findAllCustomers()
   {
     return Arrays.stream( httpClient.getForObject( "/customers.json", CustomerWrapper[].class ) )
