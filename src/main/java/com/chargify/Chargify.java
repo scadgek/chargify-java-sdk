@@ -43,6 +43,8 @@ public interface Chargify
 
   Subscription findSubscriptionById( String id );
 
+  List<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
+
   List<Subscription> findSubscriptionsByCustomerId( String customerId );
 
   List<Subscription> findAllSubscriptions();

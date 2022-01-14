@@ -258,6 +258,21 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public List<PaymentProfile> findPaymentProfilesForCustomer( String customerId )
+  {
+    try
+    {
+      return Arrays.stream( httpClient.getForObject( "/payment_profiles.json?customer_id=" + customerId, PaymentProfileWrapper[].class ) )
+              .map( PaymentProfileWrapper::getPaymentProfile )
+              .collect( Collectors.toList() );
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return List.of();
+    }
+  }
+
+  @Override
   public List<Subscription> findSubscriptionsByCustomerId( String customerId )
   {
     return Arrays.stream( httpClient.getForObject( "/customers/" + customerId + "/subscriptions.json",
