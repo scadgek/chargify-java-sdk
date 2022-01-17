@@ -146,7 +146,7 @@ public class Subscription implements Serializable
   @JsonProperty( "referral_code" )
   private String referralCode;
 
-  @JsonProperty( "ref" )
+  @JsonProperty( "reference" )
   private String reference;
 
   @JsonProperty( "next_product_id" )

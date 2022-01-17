@@ -59,6 +59,9 @@ public class CreateSubscription implements Serializable
   private String paymentProfileId;
 
   @JsonProperty( "ref" )
+  private String referralCode;
+
+  @JsonProperty( "reference" )
   private String reference;
 
   @JsonProperty( "customer_attributes" )
