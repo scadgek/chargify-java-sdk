@@ -37,6 +37,8 @@ public interface Chargify
 
   Subscription createSubscription( CreateSubscription subscription );
 
+  void updateSubscription( String subscriptionId, UpdateSubscription subscription );
+
   void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate );
 
   SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );

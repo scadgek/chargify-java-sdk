@@ -219,19 +219,25 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate )
+  public void updateSubscription( String subscriptionId, UpdateSubscription subscription )
   {
     httpClient.put(
             "/subscriptions/" + subscriptionId + ".json",
-            Map.of(
-                    "subscription",
-                    Map.of(
-                            "next_billing_at",
+            new UpdateSubscriptionWrapper( subscription )
+    );
+  }
+
+  @Override
+  public void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate )
+  {
+    updateSubscription(
+            subscriptionId,
+            UpdateSubscription.builder()
+                    .nextBillingAt(
                             nextBillingDate.atZone( ZoneId.systemDefault() )
                                     .withZoneSameInstant( ZoneId.of( "UTC" ) )
                                     .toLocalDateTime()
-                                    .format( DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'") ) )
-            )
+                                    .format( DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ss'Z'" ) ) ).build()
     );
   }
 
