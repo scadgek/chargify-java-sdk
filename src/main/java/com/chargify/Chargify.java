@@ -100,6 +100,9 @@ public interface Chargify
 
   List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId );
 
+  List<SubscriptionStatement> findSubscriptionStatements(
+          String subscriptionId, int page, int pageSize, String sort, String direction );
+
   SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId );
 
   Usage reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage );

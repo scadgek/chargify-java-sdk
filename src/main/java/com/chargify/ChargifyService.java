@@ -581,6 +581,28 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public List<SubscriptionStatement> findSubscriptionStatements(
+          String subscriptionId, int page, int pageSize, String sort, String direction )
+  {
+    if( pageSize > 200 )
+      throw new IllegalArgumentException( "Page size can't be bigger than 200" );
+
+    StringBuilder uriBuilder = new StringBuilder();
+    uriBuilder.append( "page=" ).append( page );
+    uriBuilder.append( "&per_page=" ).append( pageSize );
+    if( sort != null )
+      uriBuilder.append( "&sort=" ).append( sort );
+    if( direction != null )
+      uriBuilder.append( "&direction=" ).append( direction );
+
+
+    return Arrays.stream( httpClient.getForObject(
+            "/subscriptions/" + subscriptionId + "/statements.json?" + uriBuilder, SubscriptionStatementWrapper[].class ) )
+            .map( SubscriptionStatementWrapper::getStatement )
+            .collect( Collectors.toList() );
+  }
+
+  @Override
   public SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId )
   {
     try
