@@ -47,6 +47,18 @@ public interface Chargify
 
   List<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
 
+  PaymentProfile createPaymentProfile( CreatePaymentProfile paymentProfile );
+
+  void updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile );
+
+  PaymentProfile updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId );
+
+  PaymentProfile findPaymentProfileById( String paymentProfileId );
+
+  void deleteUnusedPaymentProfile( String paymentProfileId );
+
+  void deletePaymentProfile( String subscriptionId, String paymentProfileId );
+
   List<Subscription> findSubscriptionsByCustomerId( String customerId );
 
   List<Subscription> findAllSubscriptions();

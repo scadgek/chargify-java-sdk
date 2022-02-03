@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -276,6 +277,59 @@ public final class ChargifyService implements Chargify
     {
       return List.of();
     }
+  }
+
+  @Override
+  public PaymentProfile createPaymentProfile( CreatePaymentProfile paymentProfile )
+  {
+    Map<String, Object> body = new HashMap<>();
+    body.put( "payment_profile", paymentProfile );
+    return httpClient.postForObject(
+            "/payment_profiles.json", body, PaymentProfileWrapper.class ).getPaymentProfile();
+  }
+
+  @Override
+  public void updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile )
+  {
+    Map<String, Object> body = new HashMap<>();
+    body.put( "payment_profile", paymentProfile );
+
+    httpClient.put( "/payment_profiles/" + paymentProfileId + ".json", body );
+  }
+
+
+  @Override
+  public PaymentProfile updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId )
+  {
+    return httpClient.postForObject(
+            "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + "/change_payment_profile.json",
+            Map.of(), PaymentProfileWrapper.class ).getPaymentProfile();
+  }
+
+  @Override
+  public PaymentProfile findPaymentProfileById( String paymentProfileId )
+  {
+    try
+    {
+      return httpClient.getForObject( "/payment_profiles/" + paymentProfileId + ".json", PaymentProfileWrapper.class )
+              .getPaymentProfile();
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return null;
+    }
+  }
+
+  @Override
+  public void deleteUnusedPaymentProfile( String paymentProfileId )
+  {
+    httpClient.delete( "/payment_profiles/" + paymentProfileId + ".json" );
+  }
+
+  @Override
+  public void deletePaymentProfile( String subscriptionId, String paymentProfileId )
+  {
+    httpClient.delete( "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + ".json" );
   }
 
   @Override

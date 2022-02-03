@@ -30,6 +30,8 @@ public class ChargifyException extends RuntimeException
   {
     switch( errorMessage )
     {
+      case PaymentProfileInUseException.MESSAGE:
+        return new PaymentProfileInUseException();
       case MissingNameException.MESSAGE:
         return new MissingNameException();
       case ApiHandleNotUniqueException.MESSAGE:

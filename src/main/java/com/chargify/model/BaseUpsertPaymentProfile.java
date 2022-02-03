@@ -24,16 +24,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter @Setter
 @JsonIgnoreProperties( ignoreUnknown = true )
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class PaymentProfile implements Serializable
+public abstract class BaseUpsertPaymentProfile
 {
-  @JsonProperty( "id" )
-  private String id;
-
   @JsonProperty( "first_name" )
   private String firstName;
 
@@ -43,11 +38,8 @@ public class PaymentProfile implements Serializable
   @JsonProperty( "payment_type" )
   private String paymentType;
 
-  @JsonProperty( "masked_card_number" )
-  private String maskedCardNumber;
-
-  @JsonProperty( "card_type" )
-  private String cardType;
+  @JsonProperty( "full_number" )
+  private String cardNumber;
 
   @JsonProperty( "expiration_month" )
   private Integer expirationMonth;
@@ -55,6 +47,8 @@ public class PaymentProfile implements Serializable
   @JsonProperty( "expiration_year" )
   private Integer expirationYear;
 
-  @JsonProperty( "customer_id" )
-  private String customerId;
+  @JsonProperty( "billing_zip" )
+  private String billingZip;
+
+  private String cvv;
 }
