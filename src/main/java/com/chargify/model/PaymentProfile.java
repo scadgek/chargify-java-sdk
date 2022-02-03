@@ -57,4 +57,7 @@ public class PaymentProfile implements Serializable
 
   @JsonProperty( "customer_id" )
   private String customerId;
+
+  @JsonProperty( "billing_zip" )
+  private String billingZip;
 }
