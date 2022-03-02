@@ -727,6 +727,21 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Subscription findSubscriptionByReference( String reference )
+  {
+    try
+    {
+      return httpClient.getForObject( "/subscriptions/lookup.json?reference={reference}",
+                                      SubscriptionWrapper.class, reference )
+              .getSubscription();
+    }
+    catch( ResourceNotFoundException e )
+    {
+      return null;
+    }
+  }
+
+  @Override
   public List<Customer> findCustomersBy( Object criterion, int pageNumber )
   {
     return Arrays.stream( httpClient.getForObject( "/customers.json?q={criterion}&page={pageNumber}",

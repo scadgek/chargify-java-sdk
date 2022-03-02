@@ -127,6 +127,8 @@ public interface Chargify
 
   Customer findCustomerByReference( String reference );
 
+  Subscription findSubscriptionByReference( String reference );
+
   /**
    * Search to retrieve a single or group of customers.
    *
