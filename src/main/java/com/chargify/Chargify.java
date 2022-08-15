@@ -8,6 +8,7 @@ import com.chargify.model.product.ProductPricePoint;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public interface Chargify
 {
@@ -43,7 +44,7 @@ public interface Chargify
 
   SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );
 
-  Subscription findSubscriptionById( String id );
+  CompletableFuture<Subscription> findSubscriptionById( String id );
 
   List<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
 
