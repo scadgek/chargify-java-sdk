@@ -7,7 +7,12 @@ import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.product.ProductPricePoint;
 import com.chargify.model.wrappers.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
@@ -16,53 +21,81 @@ import org.springframework.http.converter.json.AbstractJackson2HttpMessageConver
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriUtils;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
 {
   private final RestTemplate httpClient;
 
+  private final String chargifyApiUrl;
+  private final HttpClient nativeHttpClient;
+  private final String basicAuthHeaderValue;
+  private final ObjectMapper objectMapper;
+
   public ChargifyService( final String domain, final String apiKey )
   {
-    this.httpClient = new RestTemplateBuilder()
-            .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-            .basicAuthentication( apiKey, "x" )
-            .errorHandler( new ChargifyResponseErrorHandler() )
-            .build();
-
-    this.httpClient.getMessageConverters().stream()
-            .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
-            .map( AbstractJackson2HttpMessageConverter.class::cast )
-            .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
-            .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
+    this( "https://" + domain + ".chargify.com", apiKey,
+          new RestTemplateBuilder()
+                  .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
+                  .basicAuthentication( apiKey, "x" )
+                  .errorHandler( new ChargifyResponseErrorHandler() )
+                  .build() );
   }
 
   public ChargifyService( final String domain, final String apiKey, int connectTimeoutInMillis,
                           int readTimeoutInMillis )
   {
-    this.httpClient = new RestTemplateBuilder()
-            .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-            .basicAuthentication( apiKey, "x" )
-            .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
-            .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
-            .errorHandler( new ChargifyResponseErrorHandler() )
-            .build();
+    this( "https://" + domain + ".chargify.com", apiKey,
+          new RestTemplateBuilder()
+                  .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
+                  .basicAuthentication( apiKey, "x" )
+                  .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
+                  .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
+                  .errorHandler( new ChargifyResponseErrorHandler() )
+                  .build() );
+  }
+
+  private ChargifyService( String chargifyApiUrl, String apiKey, RestTemplate httpClient )
+  {
+    this.chargifyApiUrl = chargifyApiUrl;
+    this.httpClient = httpClient;
 
     this.httpClient.getMessageConverters().stream()
             .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
             .map( AbstractJackson2HttpMessageConverter.class::cast )
             .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
             .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
+
+    this.nativeHttpClient = HttpClient.newBuilder()
+            .version( HttpClient.Version.HTTP_2 )
+            .followRedirects( HttpClient.Redirect.ALWAYS )
+            .build();
+
+    String plainCreds = apiKey + ":x";
+    String base64Creds = Base64.getEncoder().encodeToString( plainCreds.getBytes() );
+
+    basicAuthHeaderValue = "Basic " + base64Creds;
+
+    this.objectMapper = new ObjectMapper();
+    this.objectMapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS );
+    this.objectMapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    this.objectMapper.registerModules( new JavaTimeModule() );
   }
 
   @Override
@@ -251,17 +284,26 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Subscription findSubscriptionById( String id )
+  public CompletableFuture<Subscription> findSubscriptionById( String id )
   {
-    try
-    {
-      return httpClient.getForObject( "/subscriptions/" + id + ".json", SubscriptionWrapper.class )
-              .getSubscription();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri( URI.create( chargifyApiUrl + "/subscriptions/" + id + ".json" ) )
+            .header( "Authorization", basicAuthHeaderValue )
+            .GET()
+            .build();
+
+    return nativeHttpClient.sendAsync( request, HttpResponse.BodyHandlers.ofString() )
+            .thenApply( response -> handleResponse( response, SubscriptionWrapper.class ) )
+            .thenApply( SubscriptionWrapper::getSubscription )
+            .exceptionally( e -> {
+              Throwable rootCause = ExceptionUtils.getRootCause( e );
+              if( rootCause instanceof ResourceNotFoundException )
+                return null;
+              else if( rootCause instanceof RuntimeException )
+                throw (RuntimeException) rootCause;
+              else
+                throw new RuntimeException( rootCause );
+            } );
   }
 
   @Override
@@ -814,5 +856,32 @@ public final class ChargifyService implements Chargify
     }
 
     return urlBuilder.toString();
+  }
+
+  public <T,E> T handleResponse( HttpResponse<E> response, Class<T> type )
+  {
+    final E body = response.body();
+
+    if( !(body instanceof String) && !(body instanceof byte[]) )
+    {
+      throw new IllegalArgumentException( "Body should be String or byte[]" );
+    }
+
+    final String strBody = body instanceof String ? (String) body : new String( (byte[]) body );
+    final int statusCode = response.statusCode();
+
+    ChargifyResponseErrorHandler.handleError( statusCode, strBody );
+
+    if( type == Void.class )
+      return null;
+
+    try
+    {
+      return objectMapper.readValue( strBody, type );
+    }
+    catch( JsonProcessingException e )
+    {
+      throw new RuntimeException( e );
+    }
   }
 }
