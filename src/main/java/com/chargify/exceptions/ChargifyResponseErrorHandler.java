@@ -18,7 +18,7 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
     if( statusCode >= 200 && statusCode < 300 )
       return;
 
-    if( statusCode >= 300 && statusCode < 400 )
+    if( statusCode >= 400 && statusCode < 500 )
     {
       if( statusCode == HttpStatus.NOT_FOUND.value() )
         throw new ResourceNotFoundException();
@@ -36,7 +36,7 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
         }
       }
     }
-    else if( statusCode >= 400 && statusCode < 500 )
+    else if( statusCode >= 500 && statusCode < 600 )
     {
       throw new HttpServerErrorException( statusCode, strBody );
     }
