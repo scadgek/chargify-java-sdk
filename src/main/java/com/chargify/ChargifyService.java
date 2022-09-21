@@ -377,7 +377,14 @@ public final class ChargifyService implements Chargify
   @Override
   public List<Subscription> findSubscriptionsByCustomerId( String customerId )
   {
-    return Arrays.stream( httpClient.getForObject( "/customers/" + customerId + "/subscriptions.json",
+    return findSubscriptionsByCustomerId( customerId, 0, 200 );
+  }
+
+  @Override
+  public List<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize )
+  {
+    return Arrays.stream( httpClient.getForObject(
+            "/customers/" + customerId + "/subscriptions.json?page=" + pageNumber + "&" + "per_page=" + pageSize,
                                                    SubscriptionWrapper[].class ) )
             .map( SubscriptionWrapper::getSubscription )
             .collect( Collectors.toList() );

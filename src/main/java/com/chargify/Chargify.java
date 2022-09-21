@@ -62,6 +62,8 @@ public interface Chargify
 
   List<Subscription> findSubscriptionsByCustomerId( String customerId );
 
+  List<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize );
+
   List<Subscription> findAllSubscriptions();
 
   Subscription purgeSubscription( Subscription subscription );
