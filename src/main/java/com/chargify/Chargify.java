@@ -4,11 +4,11 @@ import com.chargify.model.*;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.product.ProductPricePoint;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public interface Chargify
 {
@@ -28,7 +28,7 @@ public interface Chargify
 
   Set<ProductPricePoint> findProductPricePointsByProductId( String productId );
 
-  Set<PricePoint> findComponentPricePoints( int componentId );
+  Mono<Set<PricePoint>> findComponentPricePoints( int componentId );
 
   List<Product> findAllProducts();
 
@@ -44,7 +44,7 @@ public interface Chargify
 
   SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );
 
-  CompletableFuture<Subscription> findSubscriptionById( String id );
+  Mono<Subscription> findSubscriptionById( String id );
 
   List<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
 
@@ -78,9 +78,9 @@ public interface Chargify
 
   Subscription migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle );
 
-  Subscription reactivateSubscription( String subscriptionId, boolean preserveBalance );
+  Mono<Subscription> reactivateSubscription( String subscriptionId, boolean preserveBalance );
 
-  Subscription reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData );
+  Mono<Subscription> reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData );
 
   ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
                                                                       String pricePointHandle );
@@ -109,18 +109,18 @@ public interface Chargify
 
   List<Component> findComponentsByProductFamily( String productFamilyId );
 
-  Component findComponentByIdAndProductFamily( int componentId, String productFamilyId );
+  Mono<Component> findComponentByIdAndProductFamily( int componentId, String productFamilyId );
 
-  ComponentWithPricePoints findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId );
+  Mono<ComponentWithPricePoints> findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId );
 
   List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId );
 
   List<SubscriptionStatement> findSubscriptionStatements(
           String subscriptionId, int page, int pageSize, String sort, String direction );
 
-  SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId );
+  Mono<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, int componentId );
 
-  Usage reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage );
+  Mono<Usage> reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage );
 
   Customer createCustomer( Customer customer );
 
