@@ -12,18 +12,23 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.netty.channel.ChannelOption;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriUtils;
+import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -36,45 +41,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
 {
   private final RestTemplate httpClient;
+  private final WebClient client;
 
-  private final String chargifyApiUrl;
-  private final HttpClient nativeHttpClient;
-  private final String basicAuthHeaderValue;
   private final ObjectMapper objectMapper;
-
-  public ChargifyService( final String domain, final String apiKey )
-  {
-    this( "https://" + domain + ".chargify.com", apiKey,
-          new RestTemplateBuilder()
-                  .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-                  .basicAuthentication( apiKey, "x" )
-                  .errorHandler( new ChargifyResponseErrorHandler() )
-                  .build() );
-  }
 
   public ChargifyService( final String domain, final String apiKey, int connectTimeoutInMillis,
                           int readTimeoutInMillis )
   {
-    this( "https://" + domain + ".chargify.com", apiKey,
-          new RestTemplateBuilder()
-                  .uriTemplateHandler( new RootUriTemplateHandler( "https://" + domain + ".chargify.com" ) )
-                  .basicAuthentication( apiKey, "x" )
-                  .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
-                  .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
-                  .errorHandler( new ChargifyResponseErrorHandler() )
-                  .build() );
-  }
-
-  private ChargifyService( String chargifyApiUrl, String apiKey, RestTemplate httpClient )
-  {
-    this.chargifyApiUrl = chargifyApiUrl;
-    this.httpClient = httpClient;
+    String chargifyApiUrl = "https://" + domain + ".chargify.com";
+    this.httpClient = new RestTemplateBuilder()
+            .uriTemplateHandler( new RootUriTemplateHandler( chargifyApiUrl ) )
+            .basicAuthentication( apiKey, "x" )
+            .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
+            .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
+            .errorHandler( new ChargifyResponseErrorHandler() )
+            .build();
 
     this.httpClient.getMessageConverters().stream()
             .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
@@ -82,20 +68,36 @@ public final class ChargifyService implements Chargify
             .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
             .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
 
-    this.nativeHttpClient = HttpClient.newBuilder()
-            .version( HttpClient.Version.HTTP_2 )
-            .followRedirects( HttpClient.Redirect.ALWAYS )
-            .build();
-
     String plainCreds = apiKey + ":x";
     String base64Creds = Base64.getEncoder().encodeToString( plainCreds.getBytes() );
 
-    basicAuthHeaderValue = "Basic " + base64Creds;
+    String basicAuthHeaderValue = "Basic " + base64Creds;
 
     this.objectMapper = new ObjectMapper();
     this.objectMapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS );
     this.objectMapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     this.objectMapper.registerModules( new JavaTimeModule() );
+
+    final int size = 16 * 1024 * 1024;
+    final ExchangeStrategies strategies = ExchangeStrategies.builder()
+            .codecs( codecs -> codecs.defaultCodecs().maxInMemorySize( size ) )
+            .build();
+
+    this.client = WebClient.builder()
+            .baseUrl( chargifyApiUrl )
+            .exchangeStrategies( strategies )
+            .defaultHeader( "Authorization", basicAuthHeaderValue )
+            .clientConnector( new ReactorClientHttpConnector(
+                    reactor.netty.http.client.HttpClient.create()
+                            .followRedirect( true )
+                            .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutInMillis )
+                            .responseTimeout( Duration.ofMillis( readTimeoutInMillis ) )
+            ) )
+            .codecs( clientDefaultCodecsConfigurer -> {
+              clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder( new Jackson2JsonEncoder( objectMapper, MediaType.APPLICATION_JSON ) );
+              clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder( new Jackson2JsonDecoder( objectMapper, MediaType.APPLICATION_JSON ) );
+            } )
+            .build();
   }
 
   @Override
@@ -198,18 +200,12 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Set<PricePoint> findComponentPricePoints( int componentId )
+  public Mono<Set<PricePoint>> findComponentPricePoints( int componentId )
   {
-    try
-    {
-      return httpClient.getForObject(
-              "/components/" + componentId + "/price_points.json", ComponentPricePointsWrapper.class )
-              .getPricePoints();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/components/" + componentId + "/price_points.json" ).retrieve() )
+            .bodyToMono( ComponentPricePointsWrapper.class )
+            .map( ComponentPricePointsWrapper::getPricePoints );
   }
 
   @Override
@@ -284,26 +280,12 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public CompletableFuture<Subscription> findSubscriptionById( String id )
+  public Mono<Subscription> findSubscriptionById( String id )
   {
-    HttpRequest request = HttpRequest.newBuilder()
-            .uri( URI.create( chargifyApiUrl + "/subscriptions/" + id + ".json" ) )
-            .header( "Authorization", basicAuthHeaderValue )
-            .GET()
-            .build();
-
-    return nativeHttpClient.sendAsync( request, HttpResponse.BodyHandlers.ofString() )
-            .thenApply( response -> handleResponse( response, SubscriptionWrapper.class ) )
-            .thenApply( SubscriptionWrapper::getSubscription )
-            .exceptionally( e -> {
-              Throwable rootCause = ExceptionUtils.getRootCause( e );
-              if( rootCause instanceof ResourceNotFoundException )
-                return null;
-              else if( rootCause instanceof RuntimeException )
-                throw (RuntimeException) rootCause;
-              else
-                throw new RuntimeException( rootCause );
-            } );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + id + ".json" ).retrieve() )
+            .bodyToMono( SubscriptionWrapper.class )
+            .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
@@ -469,26 +451,23 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Subscription reactivateSubscription( String subscriptionId, boolean preserveBalance )
+  public Mono<Subscription> reactivateSubscription( String subscriptionId, boolean preserveBalance )
   {
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + "/reactivate.json", HttpMethod.PUT,
-                                new HttpEntity<>( Map.of( "preserve_balance", preserveBalance ) ),
-                                SubscriptionWrapper.class )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + "/reactivate.json" )
+                    .contentType( MediaType.APPLICATION_JSON )
+                    .body( Mono.just( Map.of( "preserve_balance", preserveBalance ) ), Map.class )
+                    .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Subscription reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData )
+  public Mono<Subscription> reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData )
   {
-    return httpClient.exchange(
-            prepareSubscriptionReactivationURI( subscriptionId, reactivationData ),
-            HttpMethod.PUT,
-            HttpEntity.EMPTY,
-            SubscriptionWrapper.class
-    )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( prepareSubscriptionReactivationURI( subscriptionId, reactivationData ) )
+                    .contentType( MediaType.APPLICATION_JSON )
+                    .body( Mono.just( Map.of() ), Map.class )
+                    .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
@@ -652,26 +631,20 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Component findComponentByIdAndProductFamily( int componentId, String productFamilyId )
+  public Mono<Component> findComponentByIdAndProductFamily( int componentId, String productFamilyId )
   {
-    try
-    {
-      return httpClient.getForObject( "/product_families/" + productFamilyId +
-                                                           "/components/" + componentId + ".json",
-                                      AnyComponentWrapper.class )
-              .getComponent();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/product_families/" + productFamilyId + "/components/" + componentId + ".json" ).retrieve() )
+            .bodyToMono( AnyComponentWrapper.class )
+            .map( AnyComponentWrapper::getComponent );
   }
 
   @Override
-  public ComponentWithPricePoints findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId )
+  public Mono<ComponentWithPricePoints> findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId )
   {
-    return new ComponentWithPricePoints( findComponentByIdAndProductFamily( componentId, productFamilyId ),
-                                         findComponentPricePoints( componentId ) );
+    return findComponentByIdAndProductFamily( componentId, productFamilyId )
+            .flatMap( component -> findComponentPricePoints( componentId )
+                    .map( componentPricePoints -> new ComponentWithPricePoints( component, componentPricePoints ) ) );
   }
 
   @Override
@@ -706,28 +679,22 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public SubscriptionComponent findSubscriptionComponentById( String subscriptionId, int componentId )
+  public Mono<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, int componentId )
   {
-    try
-    {
-      return httpClient.getForObject( "/subscriptions/" + subscriptionId +
-                                                           "/components/" + componentId + ".json",
-                                      SubscriptionComponentWrapper.class )
-              .getComponent();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + ".json" ).retrieve() )
+            .bodyToMono( SubscriptionComponentWrapper.class )
+            .map( SubscriptionComponentWrapper::getComponent );
   }
 
   @Override
-  public Usage reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage )
+  public Mono<Usage> reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId +
-                                             "/usages.json",
-                                     new UsageWrapper( usage ), UsageWrapper.class )
-            .getUsage();
+    return ChargifyResponseErrorHandler.handleError(
+                    client.post().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + "/usages.json" )
+                            .body( Mono.just( new UsageWrapper( usage ) ), UsageWrapper.class ).retrieve() )
+            .bodyToMono( UsageWrapper.class )
+            .map( UsageWrapper::getUsage );
   }
 
   @Override
@@ -863,32 +830,5 @@ public final class ChargifyService implements Chargify
     }
 
     return urlBuilder.toString();
-  }
-
-  public <T,E> T handleResponse( HttpResponse<E> response, Class<T> type )
-  {
-    final E body = response.body();
-
-    if( !(body instanceof String) && !(body instanceof byte[]) )
-    {
-      throw new IllegalArgumentException( "Body should be String or byte[]" );
-    }
-
-    final String strBody = body instanceof String ? (String) body : new String( (byte[]) body );
-    final int statusCode = response.statusCode();
-
-    ChargifyResponseErrorHandler.handleError( statusCode, strBody );
-
-    if( type == Void.class )
-      return null;
-
-    try
-    {
-      return objectMapper.readValue( strBody, type );
-    }
-    catch( JsonProcessingException e )
-    {
-      throw new RuntimeException( e );
-    }
   }
 }
