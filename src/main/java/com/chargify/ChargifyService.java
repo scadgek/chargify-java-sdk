@@ -7,45 +7,34 @@ import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.product.ProductPricePoint;
 import com.chargify.model.wrappers.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.netty.channel.ChannelOption;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.boot.web.client.RootUriTemplateHandler;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class ChargifyService implements Chargify
 {
-  private final RestTemplate httpClient;
   private final WebClient client;
 
   private final ObjectMapper objectMapper;
@@ -54,229 +43,191 @@ public final class ChargifyService implements Chargify
                           int readTimeoutInMillis )
   {
     String chargifyApiUrl = "https://" + domain + ".chargify.com";
-    this.httpClient = new RestTemplateBuilder()
-            .uriTemplateHandler( new RootUriTemplateHandler( chargifyApiUrl ) )
-            .basicAuthentication( apiKey, "x" )
-            .setConnectTimeout( Duration.ofMillis( connectTimeoutInMillis ) )
-            .setReadTimeout( Duration.ofMillis( readTimeoutInMillis ) )
-            .errorHandler( new ChargifyResponseErrorHandler() )
-            .build();
-
-    this.httpClient.getMessageConverters().stream()
-            .filter( AbstractJackson2HttpMessageConverter.class::isInstance )
-            .map( AbstractJackson2HttpMessageConverter.class::cast )
-            .map( AbstractJackson2HttpMessageConverter::getObjectMapper )
-            .forEach( mapper -> mapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS ) );
-
     String plainCreds = apiKey + ":x";
     String base64Creds = Base64.getEncoder().encodeToString( plainCreds.getBytes() );
-
     String basicAuthHeaderValue = "Basic " + base64Creds;
 
     this.objectMapper = new ObjectMapper();
     this.objectMapper.disable( SerializationFeature.WRITE_DATES_AS_TIMESTAMPS );
-    this.objectMapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    this.objectMapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
     this.objectMapper.registerModules( new JavaTimeModule() );
 
     final int size = 16 * 1024 * 1024;
     final ExchangeStrategies strategies = ExchangeStrategies.builder()
-            .codecs( codecs -> codecs.defaultCodecs().maxInMemorySize( size ) )
-            .build();
+        .codecs( codecs -> codecs.defaultCodecs().maxInMemorySize( size ) )
+        .build();
 
     this.client = WebClient.builder()
-            .baseUrl( chargifyApiUrl )
-            .exchangeStrategies( strategies )
-            .defaultHeader( "Authorization", basicAuthHeaderValue )
-            .clientConnector( new ReactorClientHttpConnector(
-                    reactor.netty.http.client.HttpClient.create()
-                            .followRedirect( true )
-                            .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutInMillis )
-                            .responseTimeout( Duration.ofMillis( readTimeoutInMillis ) )
-            ) )
-            .codecs( clientDefaultCodecsConfigurer -> {
-              clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder( new Jackson2JsonEncoder( objectMapper, MediaType.APPLICATION_JSON ) );
-              clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder( new Jackson2JsonDecoder( objectMapper, MediaType.APPLICATION_JSON ) );
-            } )
-            .build();
+        .baseUrl( chargifyApiUrl )
+        .exchangeStrategies( strategies )
+        .defaultHeader( "Authorization", basicAuthHeaderValue )
+        .clientConnector( new ReactorClientHttpConnector(
+            reactor.netty.http.client.HttpClient.create()
+                .followRedirect( true )
+                .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutInMillis )
+                .responseTimeout( Duration.ofMillis( readTimeoutInMillis ) )
+        ) )
+        .codecs( clientDefaultCodecsConfigurer -> {
+          clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonEncoder( new Jackson2JsonEncoder( objectMapper, MediaType.APPLICATION_JSON ) );
+          clientDefaultCodecsConfigurer.defaultCodecs().jackson2JsonDecoder( new Jackson2JsonDecoder( objectMapper, MediaType.APPLICATION_JSON ) );
+        } )
+        .build();
   }
 
   @Override
-  public ProductFamily createProductFamily( ProductFamily productFamily )
+  public Mono<ProductFamily> createProductFamily( ProductFamily productFamily )
   {
-    return httpClient.postForObject( "/product_families.json",
-                                     new ProductFamilyWrapper( productFamily ), ProductFamilyWrapper.class )
-            .getProductFamily();
+    return ChargifyResponseErrorHandler.handleError(
+        client.post().uri( "/product_families.json" )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( new ProductFamilyWrapper( productFamily ) ), ProductFamilyWrapper.class )
+            .retrieve() ).bodyToMono( ProductFamilyWrapper.class ).map( ProductFamilyWrapper::getProductFamily );
   }
 
   @Override
-  public ProductFamily findProductFamilyById( String id )
+  public Mono<ProductFamily> findProductFamilyById( String id )
   {
-    try
-    {
-      return httpClient.getForObject( "/product_families/" + id + ".json",
-                                      ProductFamilyWrapper.class )
-              .getProductFamily();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/product_families/" + id + ".json" ).retrieve() )
+        .bodyToMono( ProductFamilyWrapper.class ).map( ProductFamilyWrapper::getProductFamily )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public List<ProductFamily> findAllProductFamilies()
+  public Flux<ProductFamily> findAllProductFamilies()
   {
-    return Arrays.stream( httpClient.getForObject( "/product_families.json", ProductFamilyWrapper[].class ) )
-            .map( ProductFamilyWrapper::getProductFamily )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/product_families.json" ).retrieve() )
+        .bodyToFlux( ProductFamilyWrapper.class ).map( ProductFamilyWrapper::getProductFamily );
   }
 
   @Override
-  public ProductFamily archiveProductFamilyById( String id )
+  public Mono<ProductFamily> archiveProductFamilyById( String id )
   {
-    try
-    {
-      return httpClient.exchange( "/product_families/" + id + ".json", HttpMethod.DELETE,
-                                  HttpEntity.EMPTY, ProductFamilyWrapper.class )
-                                  .getBody()
-              .getProductFamily();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/product_families/" + id + ".json" ).retrieve() )
+        .bodyToMono( ProductFamilyWrapper.class ).map( ProductFamilyWrapper::getProductFamily )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Product createProduct( String productFamilyId, Product product )
+  public Mono<Product> createProduct( String productFamilyId, Product product )
   {
-    return httpClient.postForObject( "/product_families/" + productFamilyId + "/products.json",
-                                     new ProductWrapper( product ), ProductWrapper.class )
-            .getProduct();
+    return ChargifyResponseErrorHandler.handleError(
+        client.post().uri( "/product_families/" + productFamilyId + "/products.json" )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( new ProductWrapper( product ) ), ProductWrapper.class )
+            .retrieve() ).bodyToMono( ProductWrapper.class ).map( ProductWrapper::getProduct );
   }
 
   @Override
-  public Product findProductById( String id )
+  public Mono<Product> findProductById( String id )
   {
-    try
-    {
-      return httpClient.getForObject( "/products/" + id + ".json", ProductWrapper.class )
-              .getProduct();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/products/" + id + ".json" ).retrieve() )
+        .bodyToMono( ProductWrapper.class ).map( ProductWrapper::getProduct )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Product findProductByApiHandle( String apiHandle )
+  public Mono<Product> findProductByApiHandle( String apiHandle )
   {
-    try
-    {
-      return httpClient.getForObject( "/products/handle/" + apiHandle + ".json",
-                                      ProductWrapper.class )
-              .getProduct();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/products/handle/" + apiHandle + ".json" ).retrieve() )
+        .bodyToMono( ProductWrapper.class ).map( ProductWrapper::getProduct )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Set<ProductPricePoint> findProductPricePointsByProductId( String productId )
+  public Flux<ProductPricePoint> findProductPricePointsByProductId( String productId )
   {
-    try
-    {
-      return httpClient.getForObject(
-              "/products/" + productId + "/price_points.json", ProductPricePointsWrapper.class )
-              .getPricePoints();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/products/" + productId + "/price_points.json" ).retrieve() )
+        .bodyToMono( ProductPricePointsWrapper.class ).map( ProductPricePointsWrapper::getPricePoints )
+        .flatMapMany( Flux::fromIterable )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Flux.empty() );
   }
 
   @Override
-  public Mono<Set<PricePoint>> findComponentPricePoints( int componentId )
+  public Flux<PricePoint> findComponentPricePoints( int componentId )
   {
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/components/" + componentId + "/price_points.json" ).retrieve() )
-            .bodyToMono( ComponentPricePointsWrapper.class )
-            .map( ComponentPricePointsWrapper::getPricePoints );
+        .bodyToMono( ComponentPricePointsWrapper.class )
+        .map( ComponentPricePointsWrapper::getPricePoints )
+        .flatMapMany( Flux::fromIterable );
   }
 
   @Override
-  public List<Product> findAllProducts()
+  public Flux<Product> findAllProducts()
   {
-    return Arrays.stream( httpClient.getForObject( "/products.json", ProductWrapper[].class ) )
-            .map( ProductWrapper::getProduct )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/products.json" ).retrieve() )
+        .bodyToFlux( ProductWrapper.class ).map( ProductWrapper::getProduct );
   }
 
   @Override
-  public List<Product> findProductsByProductFamilyId( String productFamilyId )
+  public Flux<Product> findProductsByProductFamilyId( String productFamilyId )
   {
-    return Arrays.stream( httpClient.getForObject( "/product_families/" + productFamilyId + "/products.json",
-                                                   ProductWrapper[].class ) )
-            .map( ProductWrapper::getProduct )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/product_families/" + productFamilyId + "/products.json" ).retrieve() )
+        .bodyToFlux( ProductWrapper.class ).map( ProductWrapper::getProduct );
   }
 
   @Override
-  public Product archiveProductById( String id )
+  public Mono<Product> archiveProductById( String id )
   {
-    try
-    {
-      return httpClient.exchange( "/products/" + id + ".json", HttpMethod.DELETE,
-                                  HttpEntity.EMPTY, ProductWrapper.class )
-                                  .getBody()
-              .getProduct();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/products/" + id + ".json" ).retrieve() )
+        .bodyToMono( ProductWrapper.class ).map( ProductWrapper::getProduct )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Subscription createSubscription( CreateSubscription subscription )
+  public Mono<Subscription> createSubscription( CreateSubscription subscription )
   {
-    return httpClient.postForObject( "/subscriptions.json", new CreateSubscriptionWrapper( subscription ), SubscriptionWrapper.class )
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+        client.post().uri( "/subscriptions.json" )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( new CreateSubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
+            .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public void updateSubscription( String subscriptionId, UpdateSubscription subscription )
+  public Mono<Void> updateSubscription( String subscriptionId, UpdateSubscription subscription )
   {
-    httpClient.put(
-            "/subscriptions/" + subscriptionId + ".json",
-            new UpdateSubscriptionWrapper( subscription )
+    return ChargifyResponseErrorHandler.handleError(
+        client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( new UpdateSubscriptionWrapper( subscription ) ), UpdateSubscriptionWrapper.class )
+            .retrieve() ).bodyToMono( Map.class ).then();
+  }
+
+  @Override
+  public Mono<Void> updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate )
+  {
+    return updateSubscription(
+        subscriptionId,
+        UpdateSubscription.builder()
+            .nextBillingAt(
+                nextBillingDate.atZone( ZoneId.systemDefault() )
+                    .withZoneSameInstant( ZoneId.of( "UTC" ) )
+                    .toLocalDateTime()
+                    .format( DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ss'Z'" ) ) ).build()
     );
   }
 
   @Override
-  public void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate )
+  public Mono<SubscriptionChargeResult> createSubscriptionCharge( String subscriptionId,
+                                                                  SubscriptionCharge subscriptionCharge )
   {
-    updateSubscription(
-            subscriptionId,
-            UpdateSubscription.builder()
-                    .nextBillingAt(
-                            nextBillingDate.atZone( ZoneId.systemDefault() )
-                                    .withZoneSameInstant( ZoneId.of( "UTC" ) )
-                                    .toLocalDateTime()
-                                    .format( DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ss'Z'" ) ) ).build()
-    );
-  }
-
-  @Override
-  public SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge )
-  {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/charges.json",
-                                     Map.of( "charge", subscriptionCharge ), SubscriptionChargeWrapper.class )
-            .getSubscriptionChargeResult();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/charges.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of( "charge", subscriptionCharge ) ), Map.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionChargeWrapper.class )
+        .map( SubscriptionChargeWrapper::getSubscriptionChargeResult );
   }
 
   @Override
@@ -284,296 +235,336 @@ public final class ChargifyService implements Chargify
   {
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/subscriptions/" + id + ".json" ).retrieve() )
-            .bodyToMono( SubscriptionWrapper.class )
-            .map( SubscriptionWrapper::getSubscription );
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public List<PaymentProfile> findPaymentProfilesForCustomer( String customerId )
+  public Flux<PaymentProfile> findPaymentProfilesForCustomer( String customerId )
   {
-    try
-    {
-      return Arrays.stream( httpClient.getForObject( "/payment_profiles.json?customer_id=" + customerId, PaymentProfileWrapper[].class ) )
-              .map( PaymentProfileWrapper::getPaymentProfile )
-              .collect( Collectors.toList() );
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return List.of();
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/payment_profiles.json?customer_id=" + customerId ).retrieve() )
+        .bodyToFlux( PaymentProfileWrapper.class ).map( PaymentProfileWrapper::getPaymentProfile )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Flux.empty() );
   }
 
   @Override
-  public PaymentProfile createPaymentProfile( CreatePaymentProfile paymentProfile )
-  {
-    Map<String, Object> body = new HashMap<>();
-    body.put( "payment_profile", paymentProfile );
-    return httpClient.postForObject(
-            "/payment_profiles.json", body, PaymentProfileWrapper.class ).getPaymentProfile();
-  }
-
-  @Override
-  public void updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile )
+  public Mono<PaymentProfile> createPaymentProfile( CreatePaymentProfile paymentProfile )
   {
     Map<String, Object> body = new HashMap<>();
     body.put( "payment_profile", paymentProfile );
 
-    httpClient.put( "/payment_profiles/" + paymentProfileId + ".json", body );
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/payment_profiles.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( body ), Map.class )
+                .retrieve() )
+        .bodyToMono( PaymentProfileWrapper.class )
+        .map( PaymentProfileWrapper::getPaymentProfile );
   }
 
-
   @Override
-  public PaymentProfile updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId )
+  public Mono<Void> updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile )
   {
-    return httpClient.postForObject(
-            "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + "/change_payment_profile.json",
-            Map.of(), PaymentProfileWrapper.class ).getPaymentProfile();
+    Map<String, Object> body = new HashMap<>();
+    body.put( "payment_profile", paymentProfile );
+
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/payment_profiles/" + paymentProfileId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( body ), Map.class )
+                .retrieve() )
+        .bodyToMono( Map.class )
+        .then();
   }
 
   @Override
-  public PaymentProfile findPaymentProfileById( String paymentProfileId )
+  public Mono<PaymentProfile> updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId )
   {
-    try
-    {
-      return httpClient.getForObject( "/payment_profiles/" + paymentProfileId + ".json", PaymentProfileWrapper.class )
-              .getPaymentProfile();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + "/change_payment_profile.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of() ), Map.class )
+                .retrieve() )
+        .bodyToMono( PaymentProfileWrapper.class )
+        .map( PaymentProfileWrapper::getPaymentProfile );
   }
 
   @Override
-  public void deleteUnusedPaymentProfile( String paymentProfileId )
+  public Mono<PaymentProfile> findPaymentProfileById( String paymentProfileId )
   {
-    httpClient.delete( "/payment_profiles/" + paymentProfileId + ".json" );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/payment_profiles/" + paymentProfileId + ".json" ).retrieve() )
+        .bodyToMono( PaymentProfileWrapper.class ).map( PaymentProfileWrapper::getPaymentProfile )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public void deletePaymentProfile( String subscriptionId, String paymentProfileId )
+  public Mono<Void> deleteUnusedPaymentProfile( String paymentProfileId )
   {
-    httpClient.delete( "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + ".json" );
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/payment_profiles/" + paymentProfileId + ".json" ).retrieve() )
+        .bodyToMono( Map.class ).then();
   }
 
   @Override
-  public List<Subscription> findSubscriptionsByCustomerId( String customerId )
+  public Mono<Void> deletePaymentProfile( String subscriptionId, String paymentProfileId )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/subscriptions/" + subscriptionId + "/payment_profiles/" + paymentProfileId + ".json" ).retrieve() )
+        .bodyToMono( Map.class ).then();
+  }
+
+  @Override
+  public Flux<Subscription> findSubscriptionsByCustomerId( String customerId )
   {
     return findSubscriptionsByCustomerId( customerId, 0, 200 );
   }
 
   @Override
-  public List<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize )
+  public Flux<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize )
   {
-    return Arrays.stream( httpClient.getForObject(
-            "/customers/" + customerId + "/subscriptions.json?page=" + pageNumber + "&" + "per_page=" + pageSize,
-                                                   SubscriptionWrapper[].class ) )
-            .map( SubscriptionWrapper::getSubscription )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/customers/" + customerId + "/subscriptions.json?page=" + pageNumber + "&" + "per_page=" + pageSize ).retrieve() )
+        .bodyToFlux( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public List<Subscription> findAllSubscriptions()
+  public Flux<Subscription> findAllSubscriptions()
   {
-    return Arrays.stream( httpClient.getForObject( "/subscriptions.json", SubscriptionWrapper[].class ) )
-            .map( SubscriptionWrapper::getSubscription )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions.json" ).retrieve() )
+        .bodyToFlux( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Subscription purgeSubscription( Subscription subscription )
+  public Mono<Subscription> purgeSubscription( Subscription subscription )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscription.getId() + "/purge.json?ack=" + subscription.getCustomer().getId() +
-                                  "&cascade[]=customer&cascade[]=payment_profile",
-                              HttpEntity.EMPTY, SubscriptionWrapper.class )
-        .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscription.getId() + "/purge.json?ack=" + subscription.getCustomer().getId() +
+                                   "&cascade[]=customer&cascade[]=payment_profile" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of() ), Map.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public List<Subscription> findSubscriptionsByState( String state, int pageNumber, int pageSize )
+  public Flux<Subscription> findSubscriptionsByState( String state, int pageNumber, int pageSize )
   {
-    return Arrays.stream( httpClient.getForObject( "/subscriptions.json?page=" + pageNumber + "&" +
-                                                           "per_page=" + pageSize + "&state=" + state,
-                                                   SubscriptionWrapper[].class ) )
-            .map( SubscriptionWrapper::getSubscription )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions.json?page=" + pageNumber + "&" +
+                                  "per_page=" + pageSize + "&state=" + state ).retrieve() )
+        .bodyToFlux( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Subscription cancelSubscriptionById( String id )
+  public Mono<Subscription> cancelSubscriptionById( String id )
   {
-    try
-    {
-      return httpClient.exchange( "/subscriptions/" + id + ".json", HttpMethod.DELETE,
-                                  HttpEntity.EMPTY, SubscriptionWrapper.class )
-                                  .getBody()
-              .getSubscription();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/subscriptions/" + id + ".json" ).retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Subscription cancelSubscriptionProductChange( String subscriptionId )
+  public Mono<Subscription> cancelSubscriptionProductChange( String subscriptionId )
   {
     final Subscription subscription = new Subscription();
     subscription.setNextProductId( "" );
 
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
-                                new HttpEntity<>( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new SubscriptionWrapper( subscription ) ), SubscriptionWrapper.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Subscription migrateSubscription( String subscriptionId, String productHandle )
+  public Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle )
   {
     final Migration migration = new Migration();
     migration.setProductHandle( productHandle );
 
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/migrations.json",
-                                     new MigrationWrapper( migration ), SubscriptionWrapper.class )
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/migrations.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new MigrationWrapper( migration ) ), MigrationWrapper.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public Subscription migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle )
+  public Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle )
   {
     final Migration migration = new Migration();
     migration.setProductHandle( productHandle );
     migration.setPricePointHandle( pricePointHandle );
 
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/migrations.json",
-                                     new MigrationWrapper( migration ), SubscriptionWrapper.class )
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/migrations.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new MigrationWrapper( migration ) ), MigrationWrapper.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
   public Mono<Subscription> reactivateSubscription( String subscriptionId, boolean preserveBalance )
   {
     return ChargifyResponseErrorHandler.handleError(
-            client.put().uri( "/subscriptions/" + subscriptionId + "/reactivate.json" )
-                    .contentType( MediaType.APPLICATION_JSON )
-                    .body( Mono.just( Map.of( "preserve_balance", preserveBalance ) ), Map.class )
-                    .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
+        client.put().uri( "/subscriptions/" + subscriptionId + "/reactivate.json" )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( Map.of( "preserve_balance", preserveBalance ) ), Map.class )
+            .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Mono<Subscription> reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData )
+  public Mono<Subscription> reactivateSubscription( String subscriptionId,
+                                                    SubscriptionReactivationData reactivationData )
   {
     return ChargifyResponseErrorHandler.handleError(
-            client.put().uri( prepareSubscriptionReactivationURI( subscriptionId, reactivationData ) )
-                    .contentType( MediaType.APPLICATION_JSON )
-                    .body( Mono.just( Map.of() ), Map.class )
-                    .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
+        client.put().uri( prepareSubscriptionReactivationURI( subscriptionId, reactivationData ) )
+            .contentType( MediaType.APPLICATION_JSON )
+            .body( Mono.just( Map.of() ), Map.class )
+            .retrieve() ).bodyToMono( SubscriptionWrapper.class ).map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
-                                                                             String pricePointHandle )
+  public Mono<ComponentPricePointUpdate> migrateSubscriptionComponentToPricePoint( String subscriptionId,
+                                                                                   int componentId,
+                                                                                   String pricePointHandle )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/price_points.json",
-                                     new ComponentPricePointUpdatesWrapper(
-                                             List.of( new ComponentPricePointUpdate( componentId, pricePointHandle ) ) ),
-                                     ComponentPricePointUpdatesWrapper.class )
-            .getPricePointUpdates().get( 0 );
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/price_points.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new ComponentPricePointUpdatesWrapper(
+                    List.of( new ComponentPricePointUpdate( componentId, pricePointHandle ) ) ) ), ComponentPricePointUpdatesWrapper.class )
+                .retrieve() )
+        .bodyToMono( ComponentPricePointUpdatesWrapper.class )
+        .map( wrapper -> wrapper.getPricePointUpdates().get( 0 ) );
   }
 
   @Override
-  public List<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId, List<ComponentPricePointUpdate> items )
+  public Flux<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId,
+                                                                                    List<ComponentPricePointUpdate> items )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/price_points.json",
-                                     new ComponentPricePointUpdatesWrapper( items ),
-                                     ComponentPricePointUpdatesWrapper.class )
-            .getPricePointUpdates();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/price_points.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new ComponentPricePointUpdatesWrapper( items ) ), ComponentPricePointUpdatesWrapper.class )
+                .retrieve() )
+        .bodyToMono( ComponentPricePointUpdatesWrapper.class )
+        .map( ComponentPricePointUpdatesWrapper::getPricePointUpdates )
+        .flatMapMany( Flux::fromIterable );
   }
 
   @Override
-  public Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed )
+  public Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed )
   {
     final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
     productUpdate.setProductHandle( productHandle );
     productUpdate.setChangeDelayed( delayed );
 
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
-                                new HttpEntity<>( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionWrapper.class )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionProductUpdateWrapper.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Subscription cancelScheduledSubscriptionProductChange( String subscriptionId )
+  public Mono<Subscription> cancelScheduledSubscriptionProductChange( String subscriptionId )
   {
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
-                                new HttpEntity<>(
-                                        Map.of(
-                                                "subscription",
-                                                Map.of(
-                                                        "next_product_id", "",
-                                                        "next_product_price_point_id", ""
-                                                )
-                                        )
-                                ), SubscriptionWrapper.class )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of(
+                    "subscription",
+                    Map.of(
+                        "next_product_id", "",
+                        "next_product_price_point_id", ""
+                    )
+                ) ), Map.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed )
+  public Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle,
+                                                       String pricePointHandle, boolean delayed )
   {
     final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
     productUpdate.setProductHandle( productHandle );
     productUpdate.setChangeDelayed( delayed );
     productUpdate.setPricePointHandle( pricePointHandle );
 
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + ".json", HttpMethod.PUT,
-                                new HttpEntity<>( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionWrapper.class )
-            .getBody()
-            .getSubscription();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionProductUpdateWrapper.class )
+                .retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription );
   }
 
   @Override
-  public RenewalPreview previewSubscriptionRenewal( String subscriptionId )
+  public Mono<RenewalPreview> previewSubscriptionRenewal( String subscriptionId )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/renewals/preview.json",
-                                     HttpEntity.EMPTY, RenewalPreviewWrapper.class )
-            .getRenewalPreview();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/renewals/preview.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of() ), Map.class )
+                .retrieve() )
+        .bodyToMono( RenewalPreviewWrapper.class )
+        .map( RenewalPreviewWrapper::getRenewalPreview );
   }
 
   @Override
-  public List<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata )
+  public Flux<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata )
   {
-    return Arrays.asList( httpClient.postForObject( "/subscriptions/" + subscriptionId + "/metadata.json",
-                                                    new MetadataWrapper( metadata ), Metadata[].class ) );
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/metadata.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new MetadataWrapper( metadata ) ), MetadataWrapper.class )
+                .retrieve() )
+        .bodyToFlux( Metadata.class );
   }
 
   @Override
-  public SubscriptionMetadata readSubscriptionMetadata( String subscriptionId )
+  public Mono<SubscriptionMetadata> readSubscriptionMetadata( String subscriptionId )
   {
-    try
-    {
-      return httpClient.getForObject( "/subscriptions/" + subscriptionId + "/metadata.json",
-                                      SubscriptionMetadata.class );
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + subscriptionId + "/metadata.json" ).retrieve() )
+        .bodyToMono( SubscriptionMetadata.class )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public List<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata )
+  public Flux<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata )
   {
-    return Arrays.asList( httpClient.exchange( "/subscriptions/" + subscriptionId + "/metadata.json",
-                                               HttpMethod.PUT,
-                                               new HttpEntity<>( new MetadataWrapper( metadata ) ), Metadata[].class )
-                                  .getBody() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + "/metadata.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new MetadataWrapper( metadata ) ), MetadataWrapper.class )
+                .retrieve() )
+        .bodyToFlux( Metadata.class );
   }
 
   @Override
-  public Component createComponent( String productFamilyId, Component component )
+  public Mono<Component> createComponent( String productFamilyId, Component component )
   {
     if( component.getKind() == null )
       throw new IllegalArgumentException( "Component Kind must not be null" );
@@ -598,36 +589,47 @@ public final class ChargifyService implements Chargify
         throw new IllegalArgumentException( "Invalid component kind - " + component.getKind() );
     }
 
-    return httpClient.postForObject( "/product_families/" + productFamilyId + "/" + pluralKindPathParam + ".json",
-                                     componentWrapper, AnyComponentWrapper.class )
-            .getComponent();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/product_families/" + productFamilyId + "/" + pluralKindPathParam + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( componentWrapper ), ComponentWrapper.class )
+                .retrieve() )
+        .bodyToMono( AnyComponentWrapper.class )
+        .map( AnyComponentWrapper::getComponent );
   }
 
   @Override
-  public Allocation createComponentAllocation( String subscriptionId, int componentId, Allocation allocation )
+  public Mono<Allocation> createComponentAllocation( String subscriptionId, int componentId, Allocation allocation )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/components/" + componentId +
-                                             "/allocations.json",
-                                     new AllocationWrapper( allocation ), AllocationWrapper.class )
-            .getAllocation();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId +
+                                   "/allocations.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new AllocationWrapper( allocation ) ), AllocationWrapper.class )
+                .retrieve() ).
+        bodyToMono( AllocationWrapper.class )
+        .map( AllocationWrapper::getAllocation );
   }
 
   @Override
-  public AllocationPreview previewComponentAllocation( String subscriptionId, int componentId, int quantity )
+  public Mono<AllocationPreview> previewComponentAllocation( String subscriptionId, int componentId, int quantity )
   {
-    return httpClient.postForObject( "/subscriptions/" + subscriptionId + "/allocations/preview.json",
-                                     Map.of( "allocations", List.of( new AllocationPreview.ComponentAllocationDTO( componentId, quantity ) ) ),
-                                     AllocationPreviewWrapper.class )
-            .getAllocationPreview();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/subscriptions/" + subscriptionId + "/allocations/preview.json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( Map.of( "allocations", List.of( new AllocationPreview.ComponentAllocationDTO( componentId, quantity ) ) ) ), Map.class )
+                .retrieve() )
+        .bodyToMono( AllocationPreviewWrapper.class )
+        .map( AllocationPreviewWrapper::getAllocationPreview );
   }
 
   @Override
-  public List<Component> findComponentsByProductFamily( String productFamilyId )
+  public Flux<Component> findComponentsByProductFamily( String productFamilyId )
   {
-    return Arrays.stream( httpClient.getForObject( "/product_families/" + productFamilyId + "/components.json",
-                                                   AnyComponentWrapper[].class ) )
-            .map( AnyComponentWrapper::getComponent )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/product_families/" + productFamilyId + "/components.json" ).retrieve() )
+        .bodyToFlux( AnyComponentWrapper.class )
+        .map( AnyComponentWrapper::getComponent );
   }
 
   @Override
@@ -635,30 +637,32 @@ public final class ChargifyService implements Chargify
   {
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/product_families/" + productFamilyId + "/components/" + componentId + ".json" ).retrieve() )
-            .bodyToMono( AnyComponentWrapper.class )
-            .map( AnyComponentWrapper::getComponent );
+        .bodyToMono( AnyComponentWrapper.class )
+        .map( AnyComponentWrapper::getComponent );
   }
 
   @Override
-  public Mono<ComponentWithPricePoints> findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId )
+  public Mono<ComponentWithPricePoints> findComponentWithPricePointsByIdAndProductFamily( int componentId,
+                                                                                          String productFamilyId )
   {
     return findComponentByIdAndProductFamily( componentId, productFamilyId )
-            .flatMap( component -> findComponentPricePoints( componentId )
-                    .map( componentPricePoints -> new ComponentWithPricePoints( component, componentPricePoints ) ) );
+        .flatMap( component -> findComponentPricePoints( componentId )
+            .collect( Collectors.toSet() )
+            .map( componentPricePoints -> new ComponentWithPricePoints( component, componentPricePoints ) ) );
   }
 
   @Override
-  public List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId )
+  public Flux<SubscriptionComponent> findSubscriptionComponents( String subscriptionId )
   {
-    return Arrays.stream( httpClient.getForObject( "/subscriptions/" + subscriptionId + "/components.json",
-                                                   SubscriptionComponentWrapper[].class ) )
-            .map( SubscriptionComponentWrapper::getComponent )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + subscriptionId + "/components.json" ).retrieve() )
+        .bodyToFlux( SubscriptionComponentWrapper.class )
+        .map( SubscriptionComponentWrapper::getComponent );
   }
 
   @Override
-  public List<SubscriptionStatement> findSubscriptionStatements(
-          String subscriptionId, int page, int pageSize, String sort, String direction )
+  public Flux<SubscriptionStatement> findSubscriptionStatements(
+      String subscriptionId, int page, int pageSize, String sort, String direction )
   {
     if( pageSize > 200 )
       throw new IllegalArgumentException( "Page size can't be bigger than 200" );
@@ -671,11 +675,10 @@ public final class ChargifyService implements Chargify
     if( direction != null )
       uriBuilder.append( "&direction=" ).append( direction );
 
-
-    return Arrays.stream( httpClient.getForObject(
-            "/subscriptions/" + subscriptionId + "/statements.json?" + uriBuilder, SubscriptionStatementWrapper[].class ) )
-            .map( SubscriptionStatementWrapper::getStatement )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + subscriptionId + "/statements.json?" + uriBuilder ).retrieve() )
+        .bodyToFlux( SubscriptionStatementWrapper.class )
+        .map( SubscriptionStatementWrapper::getStatement );
   }
 
   @Override
@@ -683,134 +686,120 @@ public final class ChargifyService implements Chargify
   {
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + ".json" ).retrieve() )
-            .bodyToMono( SubscriptionComponentWrapper.class )
-            .map( SubscriptionComponentWrapper::getComponent );
+        .bodyToMono( SubscriptionComponentWrapper.class )
+        .map( SubscriptionComponentWrapper::getComponent );
   }
 
   @Override
   public Mono<Usage> reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage )
   {
     return ChargifyResponseErrorHandler.handleError(
-                    client.post().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + "/usages.json" )
-                            .body( Mono.just( new UsageWrapper( usage ) ), UsageWrapper.class ).retrieve() )
-            .bodyToMono( UsageWrapper.class )
-            .map( UsageWrapper::getUsage );
+            client.post().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + "/usages.json" )
+                .body( Mono.just( new UsageWrapper( usage ) ), UsageWrapper.class ).retrieve() )
+        .bodyToMono( UsageWrapper.class )
+        .map( UsageWrapper::getUsage );
   }
 
   @Override
-  public Customer createCustomer( Customer customer )
+  public Mono<Customer> createCustomer( Customer customer )
   {
-    return httpClient.postForObject( "/customers.json", new CustomerWrapper( customer ), CustomerWrapper.class )
-            .getCustomer();
+    return ChargifyResponseErrorHandler.handleError(
+            client.post().uri( "/customers.json" )
+                .body( Mono.just( new CustomerWrapper( customer ) ), CustomerWrapper.class ).retrieve() )
+        .bodyToMono( CustomerWrapper.class )
+        .map( CustomerWrapper::getCustomer );
   }
 
   @Override
-  public Customer updateCustomer( Customer customer )
+  public Mono<Customer> updateCustomer( Customer customer )
   {
-    return httpClient.exchange( "/customers/" + customer.getId() + ".json", HttpMethod.PUT,
-                                new HttpEntity<>( new CustomerWrapper( customer ) ), CustomerWrapper.class )
-            .getBody()
-            .getCustomer();
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/customers/" + customer.getId() + ".json" )
+                .body( Mono.just( new CustomerWrapper( customer ) ), CustomerWrapper.class ).retrieve() )
+        .bodyToMono( CustomerWrapper.class )
+        .map( CustomerWrapper::getCustomer );
   }
 
   @Override
-  public Customer findCustomerById( String id )
+  public Mono<Customer> findCustomerById( String id )
   {
-    try
-    {
-      return httpClient.getForObject( "/customers/" + id + ".json", CustomerWrapper.class )
-              .getCustomer();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
-  }
-
-  @Override
-  public Customer findCustomerByReference( String reference )
-  {
-    try
-    {
-      return httpClient.getForObject( "/customers/lookup.json?reference={reference}",
-                                      CustomerWrapper.class, reference )
-              .getCustomer();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
-  }
-
-  @Override
-  public Subscription findSubscriptionByReference( String reference )
-  {
-    try
-    {
-      return httpClient.getForObject( "/subscriptions/lookup.json?reference={reference}",
-                                      SubscriptionWrapper.class, reference )
-              .getSubscription();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
-  }
-
-  @Override
-  public List<Customer> findCustomersBy( Object criterion, int pageNumber )
-  {
-    return Arrays.stream( httpClient.getForObject( "/customers.json?q={criterion}&page={pageNumber}",
-                                                   CustomerWrapper[].class, criterion, pageNumber ) )
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/customers/" + id + ".json" ).retrieve() )
+        .bodyToMono( CustomerWrapper.class )
         .map( CustomerWrapper::getCustomer )
-        .collect( Collectors.toList() );
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public List<Customer> findAllCustomers()
+  public Mono<Customer> findCustomerByReference( String reference )
   {
-    return Arrays.stream( httpClient.getForObject( "/customers.json", CustomerWrapper[].class ) )
-            .map( CustomerWrapper::getCustomer )
-            .collect( Collectors.toList() );
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/customers/lookup.json?reference={reference}", reference ).retrieve() )
+        .bodyToMono( CustomerWrapper.class )
+        .map( CustomerWrapper::getCustomer )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public void deleteCustomerById( String id )
+  public Mono<Subscription> findSubscriptionByReference( String reference )
   {
-    try
-    {
-      httpClient.delete( "/customers/" + id + ".json" );
-    }
-    catch( ResourceNotFoundException ignored )
-    {
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/lookup.json?reference={reference}", reference ).retrieve() )
+        .bodyToMono( SubscriptionWrapper.class )
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
-  public ReferralCode validateReferralCode( String code )
+  public Flux<Customer> findCustomersBy( Object criterion, int pageNumber )
   {
-    try
-    {
-      return httpClient.getForObject( "/referral_codes/validate.json?code=" + code,
-                                      ReferralCodeWrapper.class )
-              .getReferralCode();
-    }
-    catch( ResourceNotFoundException e )
-    {
-      return null;
-    }
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/customers.json?q={criterion}&page={pageNumber}", criterion, pageNumber ).retrieve() )
+        .bodyToFlux( CustomerWrapper.class )
+        .map( CustomerWrapper::getCustomer );
   }
 
   @Override
-  public Adjustment adjust( String subscriptionId, Adjustment adjustment )
+  public Flux<Customer> findAllCustomers()
   {
-    return httpClient.exchange( "/subscriptions/" + subscriptionId + "/adjustments.json", HttpMethod.POST,
-                                new HttpEntity<>( new AdjustmentWrapper( adjustment ) ), AdjustmentWrapper.class )
-            .getBody()
-            .getAdjustment();
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/customers.json" ).retrieve() )
+        .bodyToFlux( CustomerWrapper.class )
+        .map( CustomerWrapper::getCustomer );
   }
 
-  private String prepareSubscriptionReactivationURI( String subscriptionId, SubscriptionReactivationData reactivationData )
+  @Override
+  public Mono<Void> deleteCustomerById( String id )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+            client.delete().uri( "/customers/" + id + ".json" ).retrieve() )
+        .bodyToMono( Map.class )
+        .then()
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.just( "stub" ).then() );
+  }
+
+  @Override
+  public Mono<ReferralCode> validateReferralCode( String code )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/referral_codes/validate.json?code=" + code ).retrieve() )
+        .bodyToMono( ReferralCodeWrapper.class )
+        .map( ReferralCodeWrapper::getReferralCode )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
+  }
+
+  @Override
+  public Mono<Adjustment> adjust( String subscriptionId, Adjustment adjustment )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/subscriptions/" + subscriptionId + "/adjustments.json" )
+                .body( Mono.just( new AdjustmentWrapper( adjustment ) ), AdjustmentWrapper.class ).retrieve() )
+        .bodyToMono( AdjustmentWrapper.class )
+        .map( AdjustmentWrapper::getAdjustment );
+  }
+
+  private String prepareSubscriptionReactivationURI( String subscriptionId,
+                                                     SubscriptionReactivationData reactivationData )
   {
     StringBuilder urlBuilder = new StringBuilder( "/subscriptions/" ).append( subscriptionId ).append( "/reactivate.json" );
 

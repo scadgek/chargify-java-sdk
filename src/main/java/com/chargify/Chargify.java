@@ -4,133 +4,133 @@ import com.chargify.model.*;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.product.ProductPricePoint;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public interface Chargify
 {
-  ProductFamily createProductFamily( ProductFamily productFamily );
+  Mono<ProductFamily> createProductFamily( ProductFamily productFamily );
 
-  ProductFamily findProductFamilyById( String id );
+  Mono<ProductFamily> findProductFamilyById( String id );
 
-  List<ProductFamily> findAllProductFamilies();
+  Flux<ProductFamily> findAllProductFamilies();
 
-  ProductFamily archiveProductFamilyById( String id );
+  Mono<ProductFamily> archiveProductFamilyById( String id );
 
-  Product createProduct( String productFamilyId, Product product );
+  Mono<Product> createProduct( String productFamilyId, Product product );
 
-  Product findProductById( String id );
+  Mono<Product> findProductById( String id );
 
-  Product findProductByApiHandle( String apiHandle );
+  Mono<Product> findProductByApiHandle( String apiHandle );
 
-  Set<ProductPricePoint> findProductPricePointsByProductId( String productId );
+  Flux<ProductPricePoint> findProductPricePointsByProductId( String productId );
 
-  Mono<Set<PricePoint>> findComponentPricePoints( int componentId );
+  Flux<PricePoint> findComponentPricePoints( int componentId );
 
-  List<Product> findAllProducts();
+  Flux<Product> findAllProducts();
 
-  List<Product> findProductsByProductFamilyId( String productFamilyId );
+  Flux<Product> findProductsByProductFamilyId( String productFamilyId );
 
-  Product archiveProductById( String id );
+  Mono<Product> archiveProductById( String id );
 
-  Subscription createSubscription( CreateSubscription subscription );
+  Mono<Subscription> createSubscription( CreateSubscription subscription );
 
-  void updateSubscription( String subscriptionId, UpdateSubscription subscription );
+  Mono<Void> updateSubscription( String subscriptionId, UpdateSubscription subscription );
 
-  void updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate );
+  Mono<Void> updateSubscriptionNextBillingDate( String subscriptionId, LocalDateTime nextBillingDate );
 
-  SubscriptionChargeResult createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );
+  Mono<SubscriptionChargeResult> createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge );
 
   Mono<Subscription> findSubscriptionById( String id );
 
-  List<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
+  Flux<PaymentProfile> findPaymentProfilesForCustomer( String customerId );
 
-  PaymentProfile createPaymentProfile( CreatePaymentProfile paymentProfile );
+  Mono<PaymentProfile> createPaymentProfile( CreatePaymentProfile paymentProfile );
 
-  void updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile );
+  Mono<Void> updatePaymentProfile( String paymentProfileId, UpdatePaymentProfile paymentProfile );
 
-  PaymentProfile updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId );
+  Mono<PaymentProfile> updateSubscriptionPaymentProfile( String subscriptionId, String paymentProfileId );
 
-  PaymentProfile findPaymentProfileById( String paymentProfileId );
+  Mono<PaymentProfile> findPaymentProfileById( String paymentProfileId );
 
-  void deleteUnusedPaymentProfile( String paymentProfileId );
+  Mono<Void> deleteUnusedPaymentProfile( String paymentProfileId );
 
-  void deletePaymentProfile( String subscriptionId, String paymentProfileId );
+  Mono<Void> deletePaymentProfile( String subscriptionId, String paymentProfileId );
 
-  List<Subscription> findSubscriptionsByCustomerId( String customerId );
+  Flux<Subscription> findSubscriptionsByCustomerId( String customerId );
 
-  List<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize );
+  Flux<Subscription> findSubscriptionsByCustomerId( String customerId, int pageNumber, int pageSize );
 
-  List<Subscription> findAllSubscriptions();
+  Flux<Subscription> findAllSubscriptions();
 
-  Subscription purgeSubscription( Subscription subscription );
+  Mono<Subscription> purgeSubscription( Subscription subscription );
 
-  List<Subscription> findSubscriptionsByState( String state, int pageNumber, int pageSize );
+  Flux<Subscription> findSubscriptionsByState( String state, int pageNumber, int pageSize );
 
-  Subscription cancelSubscriptionById( String id );
+  Mono<Subscription> cancelSubscriptionById( String id );
 
-  Subscription cancelSubscriptionProductChange( String subscriptionId );
+  Mono<Subscription> cancelSubscriptionProductChange( String subscriptionId );
 
-  Subscription migrateSubscription( String subscriptionId, String productHandle );
+  Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle );
 
-  Subscription migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle );
+  Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle );
 
   Mono<Subscription> reactivateSubscription( String subscriptionId, boolean preserveBalance );
 
   Mono<Subscription> reactivateSubscription( String subscriptionId, SubscriptionReactivationData reactivationData );
 
-  ComponentPricePointUpdate migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
+  Mono<ComponentPricePointUpdate> migrateSubscriptionComponentToPricePoint( String subscriptionId, int componentId,
                                                                       String pricePointHandle );
 
-  List<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId, List<ComponentPricePointUpdate> items );
+  Flux<ComponentPricePointUpdate> bulkUpdateSubscriptionComponentPricePoint( String subscriptionId, List<ComponentPricePointUpdate> items );
 
-  Subscription cancelScheduledSubscriptionProductChange( String subscriptionId );
+  Mono<Subscription> cancelScheduledSubscriptionProductChange( String subscriptionId );
 
-  Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed );
+  Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed );
 
-  Subscription changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed );
+  Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed );
 
-  RenewalPreview previewSubscriptionRenewal( String subscriptionId );
+  Mono<RenewalPreview> previewSubscriptionRenewal( String subscriptionId );
 
-  List<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata );
+  Flux<Metadata> createSubscriptionMetadata( String subscriptionId, Metadata... metadata );
 
-  SubscriptionMetadata readSubscriptionMetadata( String subscriptionId );
+  Mono<SubscriptionMetadata> readSubscriptionMetadata( String subscriptionId );
 
-  List<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata );
+  Flux<Metadata> updateSubscriptionMetadata( String subscriptionId, Metadata... metadata );
 
-  Component createComponent( String productFamilyId, Component component );
+  Mono<Component> createComponent( String productFamilyId, Component component );
 
-  Allocation createComponentAllocation( String subscriptionId, int componentId, Allocation allocation );
+  Mono<Allocation> createComponentAllocation( String subscriptionId, int componentId, Allocation allocation );
 
-  AllocationPreview previewComponentAllocation( String subscriptionId, int componentId, int quantity );
+  Mono<AllocationPreview> previewComponentAllocation( String subscriptionId, int componentId, int quantity );
 
-  List<Component> findComponentsByProductFamily( String productFamilyId );
+  Flux<Component> findComponentsByProductFamily( String productFamilyId );
 
   Mono<Component> findComponentByIdAndProductFamily( int componentId, String productFamilyId );
 
   Mono<ComponentWithPricePoints> findComponentWithPricePointsByIdAndProductFamily( int componentId, String productFamilyId );
 
-  List<SubscriptionComponent> findSubscriptionComponents( String subscriptionId );
+  Flux<SubscriptionComponent> findSubscriptionComponents( String subscriptionId );
 
-  List<SubscriptionStatement> findSubscriptionStatements(
+  Flux<SubscriptionStatement> findSubscriptionStatements(
           String subscriptionId, int page, int pageSize, String sort, String direction );
 
   Mono<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, int componentId );
 
   Mono<Usage> reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage );
 
-  Customer createCustomer( Customer customer );
+  Mono<Customer> createCustomer( Customer customer );
 
-  Customer updateCustomer( Customer customer );
+  Mono<Customer> updateCustomer( Customer customer );
 
-  Customer findCustomerById( String id );
+  Mono<Customer> findCustomerById( String id );
 
-  Customer findCustomerByReference( String reference );
+  Mono<Customer> findCustomerByReference( String reference );
 
-  Subscription findSubscriptionByReference( String reference );
+  Mono<Subscription> findSubscriptionByReference( String reference );
 
   /**
    * Search to retrieve a single or group of customers.
@@ -139,13 +139,13 @@ public interface Chargify
    * @param pageNumber (start from 1) the page parameter via the query string to access subsequent pages of 50 transactions
    * @return List of customers
    */
-  List<Customer> findCustomersBy( Object criterion, int pageNumber );
+  Flux<Customer> findCustomersBy( Object criterion, int pageNumber );
 
-  List<Customer> findAllCustomers();
+  Flux<Customer> findAllCustomers();
 
-  void deleteCustomerById( String id );
+  Mono<Void> deleteCustomerById( String id );
 
-  ReferralCode validateReferralCode( String code );
+  Mono<ReferralCode> validateReferralCode( String code );
 
-  Adjustment adjust( String subscriptionId, Adjustment adjustment );
+  Mono<Adjustment> adjust( String subscriptionId, Adjustment adjustment );
 }
