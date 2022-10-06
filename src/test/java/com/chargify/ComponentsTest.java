@@ -16,7 +16,7 @@ public class ComponentsTest extends ChargifyTest
   @BeforeClass
   public static void setup()
   {
-    productFamily = chargify.createProductFamily( new ProductFamily( randomName() ) );
+    productFamily = chargify.createProductFamily( new ProductFamily( randomName() ) ).block();
   }
 
   @Test
@@ -28,7 +28,7 @@ public class ComponentsTest extends ChargifyTest
     component.setUnitName( randomName() );
     component.setPricingScheme( "per_unit" );
     component.setUnitPrice( 10. );
-    final Component createdComponent = chargify.createComponent( productFamily.getId(), component );
+    final Component createdComponent = chargify.createComponent( productFamily.getId(), component ).block();
     assertEquals( "Wrong component kind", ComponentKind.quantity_based_component, createdComponent.getKind() );
   }
 
@@ -41,7 +41,7 @@ public class ComponentsTest extends ChargifyTest
     component.setUnitName( randomName() );
     component.setPricingScheme( "per_unit" );
     component.setUnitPrice( 10. );
-    final Component createdComponent = chargify.createComponent( productFamily.getId(), component );
+    final Component createdComponent = chargify.createComponent( productFamily.getId(), component ).block();
     assertEquals( "Wrong component kind", ComponentKind.metered_component, createdComponent.getKind() );
   }
 
@@ -52,13 +52,13 @@ public class ComponentsTest extends ChargifyTest
     component.setKind( ComponentKind.on_off_component );
     component.setName( randomName() );
     component.setUnitPrice( 10. );
-    final Component createdComponent = chargify.createComponent( productFamily.getId(), component );
+    final Component createdComponent = chargify.createComponent( productFamily.getId(), component ).block();
     assertEquals( "Wrong component kind", ComponentKind.on_off_component, createdComponent.getKind() );
   }
 
   @AfterClass
   public static void cleanup()
   {
-    chargify.archiveProductFamilyById( productFamily.getId() );
+    chargify.archiveProductFamilyById( productFamily.getId() ).block();
   }
 }
