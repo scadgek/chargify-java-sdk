@@ -592,7 +592,7 @@ public final class ChargifyService implements Chargify
     return ChargifyResponseErrorHandler.handleError(
             client.post().uri( "/product_families/" + productFamilyId + "/" + pluralKindPathParam + ".json" )
                 .contentType( MediaType.APPLICATION_JSON )
-                .body( Mono.just( componentWrapper ), ComponentWrapper.class )
+                .body( Mono.just( componentWrapper ), Object.class )
                 .retrieve() )
         .bodyToMono( AnyComponentWrapper.class )
         .map( AnyComponentWrapper::getComponent );
