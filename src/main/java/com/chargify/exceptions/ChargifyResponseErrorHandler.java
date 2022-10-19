@@ -62,7 +62,7 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
     response.onStatus( HttpStatus::is4xxClientError, clientResponse -> {
       HttpStatus statusCode = clientResponse.statusCode();
       if( statusCode == HttpStatus.NOT_FOUND )
-        return Mono.empty();
+        return Mono.error( new ResourceNotFoundException() );
       else if( statusCode == HttpStatus.FORBIDDEN ) // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
         return clientResponse.bodyToMono( String.class ).map( ChargifyException::new ).flatMap( Mono::error );
       else

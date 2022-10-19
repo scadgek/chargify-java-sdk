@@ -792,7 +792,7 @@ public final class ChargifyService implements Chargify
   public Mono<Adjustment> adjust( String subscriptionId, Adjustment adjustment )
   {
     return ChargifyResponseErrorHandler.handleError(
-            client.put().uri( "/subscriptions/" + subscriptionId + "/adjustments.json" )
+            client.post().uri( "/subscriptions/" + subscriptionId + "/adjustments.json" )
                 .body( Mono.just( new AdjustmentWrapper( adjustment ) ), AdjustmentWrapper.class ).retrieve() )
         .bodyToMono( AdjustmentWrapper.class )
         .map( AdjustmentWrapper::getAdjustment );
