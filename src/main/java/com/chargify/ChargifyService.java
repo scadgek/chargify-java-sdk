@@ -687,7 +687,8 @@ public final class ChargifyService implements Chargify
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/subscriptions/" + subscriptionId + "/components/" + componentId + ".json" ).retrieve() )
         .bodyToMono( SubscriptionComponentWrapper.class )
-        .map( SubscriptionComponentWrapper::getComponent );
+        .map( SubscriptionComponentWrapper::getComponent )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
