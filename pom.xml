@@ -6,7 +6,7 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>0.31</version>
+    <version>0.32</version>
     <packaging>jar</packaging>
 
     <name>Chargify SDK for Java</name>
