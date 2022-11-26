@@ -236,7 +236,8 @@ public final class ChargifyService implements Chargify
     return ChargifyResponseErrorHandler.handleError(
             client.get().uri( "/subscriptions/" + id + ".json" ).retrieve() )
         .bodyToMono( SubscriptionWrapper.class )
-        .map( SubscriptionWrapper::getSubscription );
+        .map( SubscriptionWrapper::getSubscription )
+        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
   }
 
   @Override
