@@ -39,4 +39,6 @@ public class Transaction
   private String paymentId;
   @JsonProperty( "product_id" )
   private String productId;
+  @JsonProperty( "component_id" )
+  private String componentId;
 }

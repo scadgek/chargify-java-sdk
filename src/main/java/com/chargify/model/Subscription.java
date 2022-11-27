@@ -24,7 +24,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class Subscription implements Serializable
   private Integer productVersionNumber;
 
   @JsonProperty( "current_period_ends_at" )
-  private Date currentPeriodEndsAt;
+  private ZonedDateTime currentPeriodEndsAt;
 
   @JsonProperty( "next_assessment_at" )
   private ZonedDateTime nextAssessmentAt;
@@ -59,22 +58,22 @@ public class Subscription implements Serializable
   private ZonedDateTime nextBillingAt;
 
   @JsonProperty( "trial_started_at" )
-  private Date trialStartedAt;
+  private ZonedDateTime trialStartedAt;
 
   @JsonProperty( "trial_ended_at" )
-  private Date trialEndedAt;
+  private ZonedDateTime trialEndedAt;
 
   @JsonProperty( "activated_at" )
-  private Date activatedAt;
+  private ZonedDateTime activatedAt;
 
   @JsonProperty( "expires_at" )
-  private Date expiresAt;
+  private ZonedDateTime expiresAt;
 
   @JsonProperty( "created_at" )
-  private Date createdAt;
+  private ZonedDateTime createdAt;
 
   @JsonProperty( "updated_at" )
-  private Date updatedAt;
+  private ZonedDateTime updatedAt;
 
   @JsonProperty( "cancellation_message" )
   private String cancellationMessage;
@@ -86,10 +85,10 @@ public class Subscription implements Serializable
   private Boolean cancelAtEndOfPeriod;
 
   @JsonProperty( "canceled_at" )
-  private Date canceledAt;
+  private ZonedDateTime canceledAt;
 
   @JsonProperty( "current_period_started_at" )
-  private Date currentPeriodStartedAt;
+  private ZonedDateTime currentPeriodStartedAt;
 
   @JsonProperty( "customer_attributes" )
   private Customer customerAttributes;
@@ -116,7 +115,7 @@ public class Subscription implements Serializable
   private String signupRevenue;
 
   @JsonProperty( "delayed_cancel_at" )
-  private Date delayedCancelAt;
+  private ZonedDateTime delayedCancelAt;
 
   @JsonProperty( "coupon_code" )
   private String couponCode;

@@ -118,6 +118,8 @@ public interface Chargify
   Flux<SubscriptionStatement> findSubscriptionStatements(
           String subscriptionId, int page, int pageSize, String sort, String direction );
 
+  Flux<Transaction> findSubscriptionTransactions( String subscriptionId, SubscriptionTransactionsSearchOptions options );
+
   Mono<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, int componentId );
 
   Mono<Usage> reportSubscriptionComponentUsage( String subscriptionId, int componentId, Usage usage );
