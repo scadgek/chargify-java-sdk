@@ -683,6 +683,36 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Flux<Transaction> findSubscriptionTransactions( String subscriptionId, SubscriptionTransactionsSearchOptions options )
+  {
+    if( options.getPageSize() > 200 )
+      throw new IllegalArgumentException( "Page size can't be bigger than 200" );
+
+    StringBuilder uriBuilder = new StringBuilder();
+    uriBuilder.append( "page=" ).append( options.getPage() );
+    uriBuilder.append( "&per_page=" ).append( options.getPageSize() );
+    uriBuilder.append( "&direction=" ).append( options.getDirection().getValue() );
+    if( options.getMaxId() != null )
+      uriBuilder.append( "&max_id=" ).append( options.getMaxId() );
+    if( options.getSinceId() != null )
+      uriBuilder.append( "&since_id=" ).append( options.getSinceId() );
+    if( options.getKinds() != null )
+      options.getKinds().forEach( kind -> uriBuilder.append( "&kinds[]=" ).append( kind ) );
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern( "yyyy-MM-dd");
+    if( options.getSinceDate() != null )
+      uriBuilder.append( "&since_date=" ).append( options.getSinceDate().format( dateFormatter ) );
+    if( options.getUntilDate() != null )
+      uriBuilder.append( "&until_date=" ).append( options.getUntilDate().format( dateFormatter ) );
+
+
+    return ChargifyResponseErrorHandler.handleError(
+            client.get().uri( "/subscriptions/" + subscriptionId + "/transactions.json?" + uriBuilder ).retrieve() )
+        .bodyToFlux( TransactionWrapper.class )
+        .map( TransactionWrapper::getTransaction );
+  }
+
+  @Override
   public Mono<SubscriptionComponent> findSubscriptionComponentById( String subscriptionId, int componentId )
   {
     return ChargifyResponseErrorHandler.handleError(
