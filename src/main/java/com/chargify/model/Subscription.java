@@ -40,7 +40,7 @@ public class Subscription implements Serializable
   private Integer balanceInCents;
 
   @JsonProperty( "total_revenue_in_cents" )
-  private Integer totalRevenueInCents;
+  private Long totalRevenueInCents;
 
   @JsonProperty( "product_price_in_cents" )
   private Integer productPriceInCents;
