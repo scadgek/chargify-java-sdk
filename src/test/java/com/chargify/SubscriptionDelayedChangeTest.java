@@ -3,6 +3,7 @@ package com.chargify;
 import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
 import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.SubscriptionProductUpdate;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.Subscription;
@@ -48,9 +49,12 @@ public class SubscriptionDelayedChangeTest extends ChargifyTest
   @Test
   public void delayedProductChangeShouldModifyNextProductIdAndNotChangeCurrentProduct()
   {
-    final Subscription resultSubscription = chargify.changeSubscriptionProduct( subscription.getId(),
-                                                                                targetProduct.getHandle(),
-                                                                                true ).block();
+    final Subscription resultSubscription = chargify.changeSubscriptionProduct(
+        subscription.getId(),
+        SubscriptionProductUpdate.builder()
+            .productHandle( targetProduct.getHandle() )
+            .changeDelayed( true ).build()
+    ).block();
     assertNotNull( "Product change not scheduled", resultSubscription.getNextProductId() );
     assertEquals( "Scheduled change to wrong product", targetProduct.getId(), resultSubscription.getNextProductId() );
     assertEquals( "Current product changed", initialProduct.getId(), resultSubscription.getProduct().getId() );

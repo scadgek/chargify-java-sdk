@@ -88,11 +88,10 @@ public class ProductsTest extends ChargifyTest
                        familyProducts.size() > 0 );
   }
 
-  // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
-  @Test( expected = ChargifyException.class )
-  public void readByNonExistingFamilyShouldThrowException()
+  @Test
+  public void readByNonExistingFamilyShouldReturnNull()
   {
-    chargify.findProductFamilyById( "nonexisting" ).block();
+    Assert.assertNull( chargify.findProductFamilyById( "nonexisting" ).block() );
   }
 
   @Test
