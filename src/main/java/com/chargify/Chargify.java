@@ -74,9 +74,7 @@ public interface Chargify
 
   Mono<Subscription> cancelSubscriptionProductChange( String subscriptionId );
 
-  Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle );
-
-  Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle );
+  Mono<Subscription> migrateSubscription( String subscriptionId, Migration migration );
 
   Mono<Subscription> reactivateSubscription( String subscriptionId, boolean preserveBalance );
 
@@ -89,9 +87,7 @@ public interface Chargify
 
   Mono<Subscription> cancelScheduledSubscriptionProductChange( String subscriptionId );
 
-  Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed );
-
-  Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, String pricePointHandle, boolean delayed );
+  Mono<Subscription> changeSubscriptionProduct( String subscriptionId, SubscriptionProductUpdate payload );
 
   Mono<RenewalPreview> previewSubscriptionRenewal( String subscriptionId );
 

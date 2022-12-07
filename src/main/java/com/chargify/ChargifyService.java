@@ -25,7 +25,6 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
@@ -208,12 +207,7 @@ public final class ChargifyService implements Chargify
   {
     return updateSubscription(
         subscriptionId,
-        UpdateSubscription.builder()
-            .nextBillingAt(
-                nextBillingDate.atZone( ZoneId.systemDefault() )
-                    .withZoneSameInstant( ZoneId.of( "UTC" ) )
-                    .toLocalDateTime()
-                    .format( DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ss'Z'" ) ) ).build()
+        UpdateSubscription.builder().nextBillingAt( ChargifyUtil.toChargifyDateString( nextBillingDate ) ).build()
     );
   }
 
@@ -387,28 +381,8 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle )
+  public Mono<Subscription> migrateSubscription( String subscriptionId, Migration migration )
   {
-    final Migration migration = new Migration();
-    migration.setProductHandle( productHandle );
-
-    return ChargifyResponseErrorHandler.handleError(
-            client.post().uri( "/subscriptions/" + subscriptionId + "/migrations.json" )
-                .contentType( MediaType.APPLICATION_JSON )
-                .body( Mono.just( new MigrationWrapper( migration ) ), MigrationWrapper.class )
-                .retrieve() )
-        .bodyToMono( SubscriptionWrapper.class )
-        .map( SubscriptionWrapper::getSubscription )
-        .onErrorResume( ResourceNotFoundException.class, ex -> Mono.empty() );
-  }
-
-  @Override
-  public Mono<Subscription> migrateSubscription( String subscriptionId, String productHandle, String pricePointHandle )
-  {
-    final Migration migration = new Migration();
-    migration.setProductHandle( productHandle );
-    migration.setPricePointHandle( pricePointHandle );
-
     return ChargifyResponseErrorHandler.handleError(
             client.post().uri( "/subscriptions/" + subscriptionId + "/migrations.json" )
                 .contentType( MediaType.APPLICATION_JSON )
@@ -470,22 +444,6 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle, boolean delayed )
-  {
-    final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
-    productUpdate.setProductHandle( productHandle );
-    productUpdate.setChangeDelayed( delayed );
-
-    return ChargifyResponseErrorHandler.handleError(
-            client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
-                .contentType( MediaType.APPLICATION_JSON )
-                .body( Mono.just( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionProductUpdateWrapper.class )
-                .retrieve() )
-        .bodyToMono( SubscriptionWrapper.class )
-        .map( SubscriptionWrapper::getSubscription );
-  }
-
-  @Override
   public Mono<Subscription> cancelScheduledSubscriptionProductChange( String subscriptionId )
   {
     return ChargifyResponseErrorHandler.handleError(
@@ -504,18 +462,12 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Mono<Subscription> changeSubscriptionProduct( String subscriptionId, String productHandle,
-                                                       String pricePointHandle, boolean delayed )
+  public Mono<Subscription> changeSubscriptionProduct( String subscriptionId, SubscriptionProductUpdate payload )
   {
-    final SubscriptionProductUpdate productUpdate = new SubscriptionProductUpdate();
-    productUpdate.setProductHandle( productHandle );
-    productUpdate.setChangeDelayed( delayed );
-    productUpdate.setPricePointHandle( pricePointHandle );
-
     return ChargifyResponseErrorHandler.handleError(
             client.put().uri( "/subscriptions/" + subscriptionId + ".json" )
                 .contentType( MediaType.APPLICATION_JSON )
-                .body( Mono.just( new SubscriptionProductUpdateWrapper( productUpdate ) ), SubscriptionProductUpdateWrapper.class )
+                .body( Mono.just( new SubscriptionProductUpdateWrapper( payload ) ), SubscriptionProductUpdateWrapper.class )
                 .retrieve() )
         .bodyToMono( SubscriptionWrapper.class )
         .map( SubscriptionWrapper::getSubscription );

@@ -2,7 +2,9 @@ package com.chargify;
 
 import com.chargify.model.CreateSubscription;
 import com.chargify.model.Customer;
+import com.chargify.model.Migration;
 import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.SubscriptionProductUpdate;
 import com.chargify.model.product.Product;
 import com.chargify.model.product.ProductFamily;
 import com.chargify.model.Subscription;
@@ -99,9 +101,11 @@ public class SubscriptionsTest extends ChargifyTest
   @Test
   public void immediateProductChangeShouldChangeProduct()
   {
-    final Subscription subscription = chargify.changeSubscriptionProduct( subscriptionUnderTest.getId(),
-                                                                          productForImmediateChange.getHandle(),
-                                                                          false ).block();
+    final Subscription subscription = chargify.changeSubscriptionProduct(
+        subscriptionUnderTest.getId(), SubscriptionProductUpdate.builder()
+            .productHandle( productForImmediateChange.getHandle() )
+            .changeDelayed( false ).build()
+    ).block();
     assertNull( "Product change scheduled", subscription.getNextProductId() );
     assertEquals( "Product should have been changed", productForImmediateChange.getId(), subscription.getProduct().getId() );
   }
@@ -109,8 +113,8 @@ public class SubscriptionsTest extends ChargifyTest
   @Test
   public void migrationShouldChangeProduct()
   {
-    final Subscription subscription = chargify.migrateSubscription( subscriptionUnderTest.getId(),
-                                                                    productForMigration.getHandle() ).block();
+    final Subscription subscription = chargify.migrateSubscription(
+        subscriptionUnderTest.getId(), Migration.builder().productHandle( productForMigration.getHandle() ).build() ).block();
     assertNull( "Product change scheduled", subscription.getNextProductId() );
     assertEquals( "Product has not been migrated", productForMigration.getHandle(), subscription.getProduct().getHandle() );
   }

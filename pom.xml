@@ -6,7 +6,7 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>0.35</version>
+    <version>0.36</version>
     <packaging>jar</packaging>
 
     <name>Chargify SDK for Java</name>
@@ -16,7 +16,7 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:git://github.com/scadgek/chargify-java-sdk.git</connection>
         <developerConnection>scm:git:ssh://github.com:scadgek/chargify-java-sdk.git</developerConnection>
-        <url>http://github.com/github.com/scadgek/chargify-java-sdk/tree/master</url>
+        <url>https://github.com/github.com/scadgek/chargify-java-sdk/tree/master</url>
     </scm>
 
     <properties>
@@ -40,7 +40,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <repo.bkndls_private>backendless_private</repo.bkndls_private>
-        <repo.bkndls_private.url>http://maven.backendless.com/repository/backendless_private/
+        <repo.bkndls_private.url>https://maven.backendless.com/repository/backendless_private/
         </repo.bkndls_private.url>
     </properties>
 
@@ -60,13 +60,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.14.1</version>
+            <version>2.13.4</version>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.1</version>
+            <version>1.4.5</version>
         </dependency>
 
         <dependency>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
-            <version>1.0.23</version>
+            <version>1.0.24</version>
         </dependency>
 
     </dependencies>
