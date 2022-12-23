@@ -212,13 +212,12 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
-  public Mono<SubscriptionChargeResult> createSubscriptionCharge( String subscriptionId,
-                                                                  SubscriptionCharge subscriptionCharge )
+  public Mono<SubscriptionChargeResult> createSubscriptionCharge( String subscriptionId, SubscriptionCharge subscriptionCharge )
   {
     return ChargifyResponseErrorHandler.handleError(
             client.post().uri( "/subscriptions/" + subscriptionId + "/charges.json" )
                 .contentType( MediaType.APPLICATION_JSON )
-                .body( Mono.just( Map.of( "charge", subscriptionCharge ) ), Map.class )
+                .body( Mono.just( Map.of( "charge", SubscriptionChargePayload.from( subscriptionCharge ) ) ), Map.class )
                 .retrieve() )
         .bodyToMono( SubscriptionChargeWrapper.class )
         .map( SubscriptionChargeWrapper::getSubscriptionChargeResult );
