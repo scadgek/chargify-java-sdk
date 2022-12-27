@@ -16,7 +16,7 @@ public class SubscriptionCharge implements Serializable
   private String periodRangeStart;
   private String periodRangeEnd;
   private Boolean delayCapture;
-  private Boolean accrueOnFailure = true;
+  private Boolean accrueOnFailure = false;
 
   public SubscriptionCharge( Long amountInCents, String memo )
   {
