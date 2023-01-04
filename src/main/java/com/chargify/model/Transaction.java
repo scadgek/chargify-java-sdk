@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @JsonIgnoreProperties( ignoreUnknown = true )
@@ -24,7 +24,7 @@ public class Transaction
   private int amountInCents;
   private String memo;
   @JsonProperty( "created_at" )
-  private LocalDateTime createdAt;
+  private ZonedDateTime createdAt;
   @JsonProperty( "starting_balance_in_cents" )
   private int startingBalanceInCents;
   @JsonProperty( "ending_balance_in_cents" )
