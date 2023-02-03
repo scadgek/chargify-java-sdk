@@ -58,9 +58,9 @@ public class SubscriptionStatement implements Serializable
   @JsonProperty( "customer_shipping_zip" )
   private String customerShippingZip;
   @JsonProperty( "starting_balance_in_cents" )
-  private Integer startingBalanceInCents;
+  private Long startingBalanceInCents;
   @JsonProperty( "ending_balance_in_cents" )
-  private Integer endingBalanceInCents;
+  private Long endingBalanceInCents;
   @JsonProperty( "memo" )
   private String memo;
   @JsonProperty( "subscription_id" )

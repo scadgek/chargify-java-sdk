@@ -30,7 +30,7 @@ public class AllocationPreview
   @JsonProperty( "subtotal_in_cents" )
   private Integer subtotalInCents;
   @JsonProperty( "existing_balance_in_cents" )
-  private Integer existingBalanceInCents;
+  private Long existingBalanceInCents;
   @JsonProperty( "direction" )
   private String direction;
   @JsonProperty( "proration_scheme" )
