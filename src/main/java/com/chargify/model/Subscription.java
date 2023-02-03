@@ -37,7 +37,7 @@ public class Subscription implements Serializable
   private String state;
 
   @JsonProperty( "balance_in_cents" )
-  private Integer balanceInCents;
+  private Long balanceInCents;
 
   @JsonProperty( "total_revenue_in_cents" )
   private Long totalRevenueInCents;

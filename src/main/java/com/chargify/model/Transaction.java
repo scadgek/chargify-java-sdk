@@ -26,9 +26,9 @@ public class Transaction
   @JsonProperty( "created_at" )
   private ZonedDateTime createdAt;
   @JsonProperty( "starting_balance_in_cents" )
-  private int startingBalanceInCents;
+  private long startingBalanceInCents;
   @JsonProperty( "ending_balance_in_cents" )
-  private int endingBalanceInCents;
+  private long endingBalanceInCents;
   @JsonProperty( "gateway_used" )
   private String gatewayUsed;
   @JsonProperty( "gateway_transaction_id" )

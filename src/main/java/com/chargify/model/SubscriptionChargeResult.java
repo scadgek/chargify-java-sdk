@@ -31,9 +31,9 @@ public class SubscriptionChargeResult implements Serializable
   @JsonProperty( "created_at" )
   private String createdAt;
   @JsonProperty( "starting_balance_in_cents" )
-  private Integer startingBalanceInCents;
+  private Long startingBalanceInCents;
   @JsonProperty( "ending_balance_in_cents" )
-  private Integer endingBalanceInCents;
+  private Long endingBalanceInCents;
   @JsonProperty( "product_id" )
   private Integer productId;
   @JsonProperty( "statement_id" )
