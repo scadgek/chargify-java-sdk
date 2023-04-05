@@ -30,6 +30,8 @@ public interface Chargify
 
   Flux<PricePoint> findComponentPricePoints( int componentId );
 
+  Mono<PricePoint> updatePricePoint( int componentId, int pricePointId, PricePointUpdate pricePointUpdate );
+
   Flux<Product> findAllProducts();
 
   Flux<Product> findProductsByProductFamilyId( String productFamilyId );

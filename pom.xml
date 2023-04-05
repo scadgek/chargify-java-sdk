@@ -6,7 +6,7 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>0.40</version>
+    <version>0.41</version>
     <packaging>jar</packaging>
 
     <name>Chargify SDK for Java</name>
@@ -37,8 +37,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <repo.bkndls_private>backendless_private</repo.bkndls_private>
         <repo.bkndls_private.url>https://maven.backendless.com/repository/backendless_private/
         </repo.bkndls_private.url>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>5.3.23</version>
+            <version>5.3.26</version>
         </dependency>
 
         <dependency>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.5</version>
+            <version>1.4.6</version>
         </dependency>
 
         <dependency>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.26</version>
             <scope>provided</scope>
         </dependency>
 
@@ -93,14 +93,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.3.23</version>
+            <version>5.3.26</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty</artifactId>
-            <version>1.0.26</version>
+            <version>1.0.30</version>
         </dependency>
 
     </dependencies>
@@ -148,8 +148,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
 
             </plugin>

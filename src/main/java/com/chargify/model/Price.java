@@ -4,52 +4,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.io.Serializable;
 
 @AllArgsConstructor
 @JsonInclude( JsonInclude.Include.NON_NULL )
+@Data
 public final class Price implements Serializable
 {
+  private Integer id;
+  @JsonProperty( "starting_quantity" )
   private Integer startingQuantity;
+  @JsonProperty( "ending_quantity" )
   private Integer endingQuantity;
+  @JsonProperty( "unit_price" )
   private Double unitPrice;
 
   @JsonCreator
   public Price()
   {
-  }
-
-  @JsonProperty( "starting_quantity" )
-  public Integer getStartingQuantity()
-  {
-    return startingQuantity;
-  }
-
-  public void setStartingQuantity( Integer startingQuantity )
-  {
-    this.startingQuantity = startingQuantity;
-  }
-
-  @JsonProperty( "ending_quantity" )
-  public Integer getEndingQuantity()
-  {
-    return endingQuantity;
-  }
-
-  public void setEndingQuantity( Integer endingQuantity )
-  {
-    this.endingQuantity = endingQuantity;
-  }
-
-  @JsonProperty( "unit_price" )
-  public Double getUnitPrice()
-  {
-    return unitPrice;
-  }
-
-  public void setUnitPrice( Double unitPrice )
-  {
-    this.unitPrice = unitPrice;
   }
 }

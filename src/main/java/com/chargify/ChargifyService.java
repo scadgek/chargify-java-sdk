@@ -158,6 +158,18 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Mono<PricePoint> updatePricePoint( int componentId, int pricePointId, PricePointUpdate pricePointUpdate )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+            client.put().uri( "/components/" + componentId + "/price_points/" + pricePointId + ".json" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .body( Mono.just( new PricePointUpdateWrapper( pricePointUpdate ) ), PricePointUpdateWrapper.class )
+                .retrieve() )
+        .bodyToMono( PricePointUpdateResultWrapper.class )
+        .map( PricePointUpdateResultWrapper::getPricePoint );
+  }
+
+  @Override
   public Flux<Product> findAllProducts()
   {
     return ChargifyResponseErrorHandler.handleError(
