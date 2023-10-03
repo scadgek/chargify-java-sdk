@@ -15,9 +15,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class SubscriptionsTest extends ChargifyTest
 {
@@ -78,7 +78,7 @@ public class SubscriptionsTest extends ChargifyTest
   }
 
   @Test
-  public void subscriptionShoudNotBeFoundByInvalidId()
+  public void subscriptionShouldNotBeFoundByInvalidId()
   {
     final Subscription subscription = chargify.findSubscriptionById( "invalid" ).block();
     assertNull( "Subscription should not have been found", subscription );
@@ -88,14 +88,14 @@ public class SubscriptionsTest extends ChargifyTest
   public void customerShouldHaveAtLeastOneSubscription()
   {
     final List<Subscription> subscriptions = chargify.findSubscriptionsByCustomerId( customerUnderTest.getId() ).collectList().block();
-    assertTrue( "No subscriptions found for customer", subscriptions.size() > 0 );
+    assertFalse( "No subscriptions found for customer", subscriptions.isEmpty() );
   }
 
   @Test
   public void findAllShouldReturnAtLeastOne()
   {
     final List<Subscription> subscriptions = chargify.findAllSubscriptions().collectList().block();
-    assertTrue( "No subscriptions found", subscriptions.size() > 0 );
+    assertFalse( "No subscriptions found", subscriptions.isEmpty() );
   }
 
   @Test

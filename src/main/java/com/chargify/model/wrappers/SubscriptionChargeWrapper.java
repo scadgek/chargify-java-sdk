@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.ToString;
 
 
+@Getter
 @ToString
 public final class SubscriptionChargeWrapper
 {
-  @Getter
   private final SubscriptionChargeResult subscriptionChargeResult;
 
   @JsonCreator

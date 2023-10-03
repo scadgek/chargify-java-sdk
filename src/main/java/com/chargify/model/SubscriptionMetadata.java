@@ -3,12 +3,17 @@ package com.chargify.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
 @JsonInclude( JsonInclude.Include.NON_NULL )
+@NoArgsConstructor
+@Getter @Setter
 public class SubscriptionMetadata implements Serializable
 {
   @JsonProperty( "total_count" )
@@ -24,56 +29,6 @@ public class SubscriptionMetadata implements Serializable
   private int perPage;
 
   private Metadata[] metadata;
-
-  public int getTotalCount()
-  {
-    return totalCount;
-  }
-
-  public void setTotalCount( int totalCount )
-  {
-    this.totalCount = totalCount;
-  }
-
-  public int getCurrentPage()
-  {
-    return currentPage;
-  }
-
-  public void setCurrentPage( int currentPage )
-  {
-    this.currentPage = currentPage;
-  }
-
-  public int getTotalPages()
-  {
-    return totalPages;
-  }
-
-  public void setTotalPages( int totalPages )
-  {
-    this.totalPages = totalPages;
-  }
-
-  public int getPerPage()
-  {
-    return perPage;
-  }
-
-  public void setPerPage( int perPage )
-  {
-    this.perPage = perPage;
-  }
-
-  public Metadata[] getMetadata()
-  {
-    return metadata;
-  }
-
-  public void setMetadata( Metadata[] metadata )
-  {
-    this.metadata = metadata;
-  }
 
   @Override
   public String toString()

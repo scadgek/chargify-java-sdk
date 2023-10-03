@@ -49,7 +49,7 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void productShouldNotBeFoundByInvalidId()
   {
-    final Product product = chargify.findProductById( "nonexisting" ).block();
+    final Product product = chargify.findProductById( "nonexistent" ).block();
 
     Assert.assertNull( "Product should not be found by invalid ID", product );
   }
@@ -75,7 +75,7 @@ public class ProductsTest extends ChargifyTest
   {
     final List<Product> products = chargify.findAllProducts().collectList().block();
 
-    Assert.assertTrue( "At least one product should be present", products.size() > 0 );
+    Assert.assertFalse( "At least one product should be present", products.isEmpty() );
   }
 
   @Test
@@ -83,20 +83,19 @@ public class ProductsTest extends ChargifyTest
   {
     final List<Product> familyProducts = chargify.findProductsByProductFamilyId( productFamilyUnderTest.getId() ).collectList().block();
 
-    Assert.assertTrue( "At least one product should be present in the family",
-                       familyProducts.size() > 0 );
+    Assert.assertFalse( "At least one product should be present in the family", familyProducts.isEmpty() );
   }
 
   @Test
   public void readByNonExistingFamilyShouldReturnNull()
   {
-    Assert.assertNull( chargify.findProductFamilyById( "nonexisting" ).block() );
+    Assert.assertNull( chargify.findProductFamilyById( "nonexistent" ).block() );
   }
 
   @Test
   public void archiveNonExisting()
   {
-    final Product archivedProduct = chargify.archiveProductById( "nonexisting" ).block();
+    final Product archivedProduct = chargify.archiveProductById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product has been archived", archivedProduct );
   }

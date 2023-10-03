@@ -21,9 +21,13 @@ package com.chargify.model.product;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @JsonIgnoreProperties( ignoreUnknown = true )
 @JsonInclude( JsonInclude.Include.NON_NULL )
+@NoArgsConstructor
+@Data
 public class ProductComponentItem
 {
   @JsonProperty( "component_id" )
@@ -33,34 +37,4 @@ public class ProductComponentItem
   private int allocatedQuantity;
 
   private boolean enabled;
-
-  public String getComponentId()
-  {
-    return componentId;
-  }
-
-  public void setComponentId( String componentId )
-  {
-    this.componentId = componentId;
-  }
-
-  public int getAllocatedQuantity()
-  {
-    return allocatedQuantity;
-  }
-
-  public void setAllocatedQuantity( int allocatedQuantity )
-  {
-    this.allocatedQuantity = allocatedQuantity;
-  }
-
-  public boolean isEnabled()
-  {
-    return enabled;
-  }
-
-  public void setEnabled( boolean enabled )
-  {
-    this.enabled = enabled;
-  }
 }

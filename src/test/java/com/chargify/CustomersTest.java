@@ -7,9 +7,9 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class CustomersTest extends ChargifyTest
 {
@@ -44,7 +44,7 @@ public class CustomersTest extends ChargifyTest
   @Test
   public void customerShouldNotBeFoundByInvalidId()
   {
-    final Customer customer = chargify.findCustomerById( "nonexisting" ).block();
+    final Customer customer = chargify.findCustomerById( "nonexistent" ).block();
     assertNull( "Customer should not have been found", customer );
   }
 
@@ -52,7 +52,7 @@ public class CustomersTest extends ChargifyTest
   public void findAllShouldFindAtLeastOne()
   {
     final List<Customer> customers = chargify.findAllCustomers().collectList().block();
-    assertTrue( "No customers found", customers.size() > 0 );
+    assertFalse( "No customers found", customers.isEmpty() );
   }
 
   @Test

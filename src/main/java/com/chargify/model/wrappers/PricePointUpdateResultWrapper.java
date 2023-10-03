@@ -7,11 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+@Getter
 @EqualsAndHashCode
 @ToString
 public final class PricePointUpdateResultWrapper
 {
-  @Getter
   @JsonProperty( "price_point" )
   private final PricePoint pricePoint;
 

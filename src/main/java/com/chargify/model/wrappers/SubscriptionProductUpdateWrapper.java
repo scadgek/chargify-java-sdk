@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+@Getter
 public final class SubscriptionProductUpdateWrapper
 {
-  @Getter
   private final SubscriptionProductUpdate subscription;
 
   @JsonCreator
-  public SubscriptionProductUpdateWrapper( @JsonProperty( "subscription" )
-                                                   SubscriptionProductUpdate wrappedSubscription )
+  public SubscriptionProductUpdateWrapper( @JsonProperty( "subscription" ) SubscriptionProductUpdate wrappedSubscription )
   {
     this.subscription = wrappedSubscription;
   }

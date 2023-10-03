@@ -43,14 +43,13 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void readAllShouldRetrieveAtLeastOneProductFamily()
   {
-    Assert.assertTrue( "At least one product family should exist",
-                       chargify.findAllProductFamilies().collectList().block().size() > 0 );
+    Assert.assertFalse( "At least one product family should exist", chargify.findAllProductFamilies().collectList().block().isEmpty() );
   }
 
   @Test
   public void readNonExistingShouldReturnEmptyOptional()
   {
-    final ProductFamily productFamily = chargify.findProductFamilyById( "nonexisting" ).block();
+    final ProductFamily productFamily = chargify.findProductFamilyById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product family found", productFamily );
   }
@@ -58,7 +57,7 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void archiveNonExistingShouldReturnEmptyOptional()
   {
-    final ProductFamily archivedProductFamily = chargify.archiveProductFamilyById( "nonexisting" ).block();
+    final ProductFamily archivedProductFamily = chargify.archiveProductFamilyById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product family found", archivedProductFamily );
   }

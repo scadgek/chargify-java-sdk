@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -59,8 +60,8 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
 
   public static WebClient.ResponseSpec handleError( WebClient.ResponseSpec response )
   {
-    response.onStatus( HttpStatus::is4xxClientError, clientResponse -> {
-      HttpStatus statusCode = clientResponse.statusCode();
+    response.onStatus( HttpStatusCode::is4xxClientError, clientResponse -> {
+      HttpStatusCode statusCode = clientResponse.statusCode();
       if( statusCode == HttpStatus.NOT_FOUND )
         return Mono.error( new ResourceNotFoundException() );
       else if( statusCode == HttpStatus.FORBIDDEN ) // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
@@ -68,28 +69,28 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
       else
       {
         return clientResponse.bodyToMono( String.class )
-                .map( body -> {
-                  try
-                  {
-                    return objectMapper.readValue( body, ChargifyError.class ).exception();
-                  }
-                  catch( JsonProcessingException e )
-                  {
-                    throw new RuntimeException( e );
-                  }
-                } )
-                .flatMap( Mono::error );
+            .<ChargifyException>handle( ( body, sink ) -> {
+              try
+              {
+                sink.next( objectMapper.readValue( body, ChargifyError.class ).exception() );
+              }
+              catch( JsonProcessingException e )
+              {
+                sink.error( new RuntimeException( e ) );
+              }
+            } )
+            .flatMap( Mono::error );
       }
     } );
 
     response.onStatus(
-            HttpStatus::is5xxServerError,
+            HttpStatusCode::is5xxServerError,
             clientResponse -> clientResponse.bodyToMono( String.class )
                     .map( message -> new HttpServerErrorException( clientResponse.statusCode().value(), message ) )
                     .flatMap( Mono::error ) );
 
     response.onStatus(
-            HttpStatus::isError,
+            HttpStatusCode::isError,
             clientResponse -> response.bodyToMono( String.class )
                     .map( message -> new UnknownHttpStatusCodeException( clientResponse.statusCode().value(), message ) )
                     .flatMap( Mono::error ) );
@@ -98,22 +99,21 @@ public final class ChargifyResponseErrorHandler extends DefaultResponseErrorHand
   }
 
   @Override
-  protected void handleError( ClientHttpResponse response, HttpStatus statusCode ) throws IOException
+  protected void handleError( ClientHttpResponse response, HttpStatusCode statusCode ) throws IOException
   {
-    switch( statusCode.series() )
+    if( statusCode.is4xxClientError() )
     {
-      case CLIENT_ERROR:
-        if( statusCode == HttpStatus.NOT_FOUND )
-          throw new ResourceNotFoundException();
-        else if( statusCode == HttpStatus.FORBIDDEN ) // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
-          throw new ChargifyException( readInputStream( response.getBody() ) );
-        else
-          throw objectMapper.readValue( response.getBody(), ChargifyError.class ).exception();
-      case SERVER_ERROR:
-        throw new HttpServerErrorException( statusCode.value(), readInputStream( response.getBody() ) );
-      default:
-        throw new UnknownHttpStatusCodeException( statusCode.value(), readInputStream( response.getBody() ) );
+      if( statusCode == HttpStatus.NOT_FOUND )
+        throw new ResourceNotFoundException();
+      else if( statusCode == HttpStatus.FORBIDDEN ) // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
+        throw new ChargifyException( readInputStream( response.getBody() ) );
+      else
+        throw objectMapper.readValue( response.getBody(), ChargifyError.class ).exception();
     }
+    else if( statusCode.is5xxServerError() )
+      throw new HttpServerErrorException( statusCode.value(), readInputStream( response.getBody() ) );
+    else
+      throw new UnknownHttpStatusCodeException( statusCode.value(), readInputStream( response.getBody() ) );
   }
 
   private String readInputStream( final InputStream stream )

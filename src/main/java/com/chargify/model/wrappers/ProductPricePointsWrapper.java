@@ -8,10 +8,10 @@ import lombok.ToString;
 
 import java.util.Set;
 
+@Getter
 @ToString
 public final class ProductPricePointsWrapper
 {
-  @Getter
   private final Set<ProductPricePoint> pricePoints;
 
   @JsonCreator

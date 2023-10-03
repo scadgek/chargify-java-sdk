@@ -22,14 +22,14 @@ public final class ChargifyError
 
   ChargifyException exception()
   {
-    if( errors instanceof Collection )
+    if( errors instanceof Collection<?> errorsAsStrings )
     {
-      return ChargifyException.fromErrors( (Collection) errors );
+      return ChargifyException.fromErrors( errorsAsStrings );
     }
-    else if( errors instanceof Map )
+    else if( errors instanceof Map<?, ?> errorsAsMap )
     {
       List<String> errorsList = new ArrayList<>();
-      ((Map) errors).forEach( ( key, value ) -> errorsList.add( key + ": " + value ) );
+      errorsAsMap.forEach( ( key, value ) -> errorsList.add( key + ": " + value ) );
       return ChargifyException.fromErrors( errorsList );
     }
     else

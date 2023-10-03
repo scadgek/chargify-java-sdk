@@ -534,24 +534,22 @@ public final class ChargifyService implements Chargify
       throw new IllegalArgumentException( "Component Kind must not be null" );
 
     final String pluralKindPathParam;
-    final ComponentWrapper componentWrapper;
-    switch( component.getKind() )
+    final ComponentWrapper componentWrapper = switch( component.getKind() )
     {
-      case quantity_based_component:
+      case quantity_based_component -> {
         pluralKindPathParam = "quantity_based_components";
-        componentWrapper = new QuantityBasedComponentWrapper( component );
-        break;
-      case metered_component:
+        yield new QuantityBasedComponentWrapper( component );
+      }
+      case metered_component -> {
         pluralKindPathParam = "metered_components";
-        componentWrapper = new MeteredComponentWrapper( component );
-        break;
-      case on_off_component:
+        yield new MeteredComponentWrapper( component );
+      }
+      case on_off_component -> {
         pluralKindPathParam = "on_off_components";
-        componentWrapper = new OnOffComponentWrapper( component );
-        break;
-      default:
-        throw new IllegalArgumentException( "Invalid component kind - " + component.getKind() );
-    }
+        yield new OnOffComponentWrapper( component );
+      }
+      default -> throw new IllegalArgumentException( "Invalid component kind - " + component.getKind() );
+    };
 
     return ChargifyResponseErrorHandler.handleError(
             client.post().uri( "/product_families/" + productFamilyId + "/" + pluralKindPathParam + ".json" )

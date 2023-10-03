@@ -3,10 +3,14 @@ package com.chargify.model.product;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @JsonInclude( JsonInclude.Include.NON_NULL )
+@NoArgsConstructor
+@Data
 public class ProductFamily implements Serializable
 {
   private String id;
@@ -24,62 +28,5 @@ public class ProductFamily implements Serializable
   public ProductFamily( @JsonProperty( "name" ) String name )
   {
     this.name = name;
-  }
-
-  public String getId()
-  {
-    return id;
-  }
-
-  public void setId( String id )
-  {
-    this.id = id;
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public String getDescription()
-  {
-    return description;
-  }
-
-  public void setDescription( String description )
-  {
-    this.description = description;
-  }
-
-  public String getHandle()
-  {
-    return handle;
-  }
-
-  public void setHandle( String handle )
-  {
-    this.handle = handle;
-  }
-
-  public String getAccountingCode()
-  {
-    return accountingCode;
-  }
-
-  public void setAccountingCode( String accountingCode )
-  {
-    this.accountingCode = accountingCode;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "ProductFamily{" +
-            "id='" + id + '\'' +
-            ", name='" + name + '\'' +
-            ", description='" + description + '\'' +
-            ", handle='" + handle + '\'' +
-            ", accountingCode='" + accountingCode + '\'' +
-            '}';
   }
 }
