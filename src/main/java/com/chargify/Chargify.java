@@ -141,7 +141,15 @@ public interface Chargify
    */
   Flux<Customer> findCustomersBy( Object criterion, int pageNumber );
 
+  /**
+   *  The first page of results is displayed
+   *  Default value for per_page is 50
+   *  For page settings and how many records to fetch in each request (perPage), use
+   *  {@link #findCustomers(int pageNumber, int perPage )}
+   */
   Flux<Customer> findAllCustomers();
+
+  Flux<Customer> findCustomers( int pageNumber, int perPage );
 
   Mono<Void> deleteCustomerById( String id );
 

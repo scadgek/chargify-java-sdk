@@ -762,6 +762,15 @@ public final class ChargifyService implements Chargify
   }
 
   @Override
+  public Flux<Customer> findCustomers( int pageNumber, int perPage )
+  {
+    return ChargifyResponseErrorHandler.handleError(
+                    client.get().uri( "/customers.json?page={pageNumber}&per_page={perPage}", pageNumber, perPage ).retrieve() )
+            .bodyToFlux( CustomerWrapper.class )
+            .map( CustomerWrapper::getCustomer );
+  }
+
+  @Override
   public Mono<Void> deleteCustomerById( String id )
   {
     return ChargifyResponseErrorHandler.handleError(
