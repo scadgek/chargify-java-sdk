@@ -21,46 +21,34 @@ package com.chargify.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter @Setter
 @JsonIgnoreProperties( ignoreUnknown = true )
 @JsonInclude( JsonInclude.Include.NON_NULL )
-public class ProductComponentItem
+public abstract class BaseUpsertPaymentProfile
 {
-  @JsonProperty( "component_id" )
-  private String componentId;
+  @JsonProperty( "first_name" )
+  private String firstName;
 
-  @JsonProperty( "allocated_quantity" )
-  private int allocatedQuantity;
+  @JsonProperty( "last_name" )
+  private String lastName;
 
-  private boolean enabled;
+  @JsonProperty( "payment_type" )
+  private String paymentType;
 
-  public String getComponentId()
-  {
-    return componentId;
-  }
+  @JsonProperty( "full_number" )
+  private String cardNumber;
 
-  public void setComponentId( String componentId )
-  {
-    this.componentId = componentId;
-  }
+  @JsonProperty( "expiration_month" )
+  private Integer expirationMonth;
 
-  public int getAllocatedQuantity()
-  {
-    return allocatedQuantity;
-  }
+  @JsonProperty( "expiration_year" )
+  private Integer expirationYear;
 
-  public void setAllocatedQuantity( int allocatedQuantity )
-  {
-    this.allocatedQuantity = allocatedQuantity;
-  }
+  @JsonProperty( "billing_zip" )
+  private String billingZip;
 
-  public boolean isEnabled()
-  {
-    return enabled;
-  }
-
-  public void setEnabled( boolean enabled )
-  {
-    this.enabled = enabled;
-  }
+  private String cvv;
 }

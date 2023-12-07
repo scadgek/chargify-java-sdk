@@ -1,7 +1,7 @@
 package com.chargify;
 
 import com.chargify.exceptions.ApiHandleNotUniqueException;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.product.ProductFamily;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,25 +14,25 @@ public class ProductFamiliesTest extends ChargifyTest
   @BeforeClass
   public static void setup()
   {
-    existingProductFamily = chargify.createProductFamily( new ProductFamily( randomName() ) );
+    existingProductFamily = chargify.createProductFamily( new ProductFamily( randomName() ) ).block();
   }
 
   @AfterClass
   public static void cleanup()
   {
-    chargify.archiveProductFamilyById( existingProductFamily.getId() );
+    chargify.archiveProductFamilyById( existingProductFamily.getId() ).block();
   }
 
   @Test( expected = ApiHandleNotUniqueException.class )
   public void productFamilyApiHandleShouldBeUnique()
   {
-    chargify.createProductFamily( existingProductFamily );
+    chargify.createProductFamily( existingProductFamily ).block();
   }
 
   @Test
   public void productFamilyRetrievedByIdShouldHaveProperHandle()
   {
-    final ProductFamily retrievedProductFamily = chargify.findProductFamilyById( existingProductFamily.getId() );
+    final ProductFamily retrievedProductFamily = chargify.findProductFamilyById( existingProductFamily.getId() ).block();
 
     Assert.assertNotNull( "Product family not found by ID " + existingProductFamily.getId(),
                           retrievedProductFamily );
@@ -43,14 +43,13 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void readAllShouldRetrieveAtLeastOneProductFamily()
   {
-    Assert.assertTrue( "At least one product family should exist",
-                       chargify.findAllProductFamilies().size() > 0 );
+    Assert.assertFalse( "At least one product family should exist", chargify.findAllProductFamilies().collectList().block().isEmpty() );
   }
 
   @Test
   public void readNonExistingShouldReturnEmptyOptional()
   {
-    final ProductFamily productFamily = chargify.findProductFamilyById( "nonexisting" );
+    final ProductFamily productFamily = chargify.findProductFamilyById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product family found", productFamily );
   }
@@ -58,7 +57,7 @@ public class ProductFamiliesTest extends ChargifyTest
   @Test
   public void archiveNonExistingShouldReturnEmptyOptional()
   {
-    final ProductFamily archivedProductFamily = chargify.archiveProductFamilyById( "nonexisting" );
+    final ProductFamily archivedProductFamily = chargify.archiveProductFamilyById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product family found", archivedProductFamily );
   }

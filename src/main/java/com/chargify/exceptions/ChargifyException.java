@@ -9,12 +9,12 @@ public class ChargifyException extends RuntimeException
     super( errorMessage );
   }
 
-  private ChargifyException( Collection errorMessages )
+  private ChargifyException( Collection<?> errorMessages )
   {
     super( String.join( " && ", errorMessages.toString() ) );
   }
 
-  static ChargifyException fromErrors( Collection errorMessages )
+  static ChargifyException fromErrors( Collection<?> errorMessages )
   {
     if( errorMessages.size() == 1 )
     {
@@ -28,14 +28,12 @@ public class ChargifyException extends RuntimeException
 
   private static ChargifyException fromError( String errorMessage )
   {
-    switch( errorMessage )
+    return switch( errorMessage )
     {
-      case MissingNameException.MESSAGE:
-        return new MissingNameException();
-      case ApiHandleNotUniqueException.MESSAGE:
-        return new ApiHandleNotUniqueException();
-      default:
-        return new ChargifyException( errorMessage );
-    }
+      case PaymentProfileInUseException.MESSAGE -> new PaymentProfileInUseException();
+      case MissingNameException.MESSAGE -> new MissingNameException();
+      case ApiHandleNotUniqueException.MESSAGE -> new ApiHandleNotUniqueException();
+      default -> new ChargifyException( errorMessage );
+    };
   }
 }

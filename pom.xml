@@ -6,7 +6,7 @@
 
     <groupId>com.chargify</groupId>
     <artifactId>chargify-sdk</artifactId>
-    <version>0.2.7</version>
+    <version>0.44</version>
     <packaging>jar</packaging>
 
     <name>Chargify SDK for Java</name>
@@ -16,14 +16,14 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
     <developers>
         <developer>
-            <name>Sergey Chupov</name>
-            <email>scadgek@live.com</email>
+            <name>Backendless</name>
+            <email>chargify-sdk-for-java@backendless.com</email>
             <organization>Backendless</organization>
             <organizationUrl>https://backendless.com/</organizationUrl>
         </developer>
@@ -32,67 +32,100 @@
     <scm>
         <connection>scm:git:git://github.com/scadgek/chargify-java-sdk.git</connection>
         <developerConnection>scm:git:ssh://github.com:scadgek/chargify-java-sdk.git</developerConnection>
-        <url>http://github.com/github.com/scadgek/chargify-java-sdk/tree/master</url>
+        <url>https://github.com/github.com/scadgek/chargify-java-sdk/tree/master</url>
     </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <repo.bkndls_private>backendless_private</repo.bkndls_private>
+        <repo.bkndls_private.url>https://maven.backendless.com/repository/backendless_private/
+        </repo.bkndls_private.url>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.0.5.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-            <version>2.0.1.RELEASE</version>
+            <artifactId>spring-webflux</artifactId>
+            <version>6.0.12</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.5</version>
+            <version>2.14.3</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.9.5</version>
+            <version>2.14.3</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.4.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.netty</groupId>
+            <artifactId>reactor-netty</artifactId>
+            <version>1.1.11</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.0.5.RELEASE</version>
+            <version>6.0.12</version>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>${repo.bkndls_private}</id>
+            <url>${repo.bkndls_private.url}snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>${repo.bkndls_private}</id>
+            <url>${repo.bkndls_private.url}</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -105,6 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -113,6 +147,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+
             </plugin>
         </plugins>
     </build>

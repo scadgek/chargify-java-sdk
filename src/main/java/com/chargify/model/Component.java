@@ -20,14 +20,15 @@ package com.chargify.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
+@Data
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Component implements Serializable
 {
-  private String id;
+  private Integer id;
 
   private String name;
 
@@ -60,163 +61,7 @@ public class Component implements Serializable
 
   private Boolean taxable;
 
+  private Boolean recurring;
+
   private String description;
-
-  public String getId()
-  {
-    return id;
-  }
-
-  public void setId( String id )
-  {
-    this.id = id;
-  }
-
-  public String getName()
-  {
-    return name;
-  }
-
-  public void setName( String name )
-  {
-    this.name = name;
-  }
-
-  public String getPricingScheme()
-  {
-    return pricingScheme;
-  }
-
-  public void setPricingScheme( String pricingScheme )
-  {
-    this.pricingScheme = pricingScheme;
-  }
-
-  public String getUnitName()
-  {
-    return unitName;
-  }
-
-  public void setUnitName( String unitName )
-  {
-    this.unitName = unitName;
-  }
-
-  public Double getUnitPrice()
-  {
-    return unitPrice;
-  }
-
-  public void setUnitPrice( Double unitPrice )
-  {
-    this.unitPrice = unitPrice;
-  }
-
-  public String getProductFamilyId()
-  {
-    return productFamilyId;
-  }
-
-  public void setProductFamilyId( String productFamilyId )
-  {
-    this.productFamilyId = productFamilyId;
-  }
-
-  public ComponentKind getKind()
-  {
-    return kind;
-  }
-
-  public void setKind( ComponentKind kind )
-  {
-    this.kind = kind;
-  }
-
-  public Boolean getArchived()
-  {
-    return archived;
-  }
-
-  public void setArchived( Boolean archived )
-  {
-    this.archived = archived;
-  }
-
-  public Boolean getTaxable()
-  {
-    return taxable;
-  }
-
-  public void setTaxable( Boolean taxable )
-  {
-    this.taxable = taxable;
-  }
-
-  public String getDescription()
-  {
-    return description;
-  }
-
-  public void setDescription( String description )
-  {
-    this.description = description;
-  }
-
-  public Price[] getPrices()
-  {
-    return prices;
-  }
-
-  public void setPrices( Price[] prices )
-  {
-    this.prices = prices;
-  }
-
-  public PricePoint[] getPricePoints()
-  {
-    return pricePoints;
-  }
-
-  public void setPricePoints( PricePoint[] pricePoints )
-  {
-    this.pricePoints = pricePoints;
-  }
-
-  public String toString()
-  {
-    return "Component{" +
-            "id='" + id + '\'' +
-            ", name='" + name + '\'' +
-            ", pricingScheme='" + pricingScheme + '\'' +
-            ", unitName='" + unitName + '\'' +
-            ", unitPrice=" + unitPrice +
-            ", productFamilyId='" + productFamilyId + '\'' +
-            ", prices=" + Arrays.toString( prices ) +
-            ", pricePoints=" + Arrays.toString( pricePoints ) +
-            ", kind=" + kind +
-            ", archived=" + archived +
-            ", taxable=" + taxable +
-            ", description='" + description + '\'' +
-            '}';
-  }
-
-  public String getDefaultPricePointName()
-  {
-    return defaultPricePointName;
-  }
-
-  public void setDefaultPricePointName( String defaultPricePointName )
-  {
-    this.defaultPricePointName = defaultPricePointName;
-  }
-
-  public String getDefaultPricePointHandle()
-  {
-    return defaultPricePointHandle;
-  }
-
-  public void setDefaultPricePointHandle( String defaultPricePointHandle )
-  {
-    this.defaultPricePointHandle = defaultPricePointHandle;
-  }
 }

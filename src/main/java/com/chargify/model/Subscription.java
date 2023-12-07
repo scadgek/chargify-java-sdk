@@ -20,14 +20,15 @@ package com.chargify.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Data
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class Subscription implements Serializable
 {
@@ -36,10 +37,10 @@ public class Subscription implements Serializable
   private String state;
 
   @JsonProperty( "balance_in_cents" )
-  private Integer balanceInCents;
+  private Long balanceInCents;
 
   @JsonProperty( "total_revenue_in_cents" )
-  private Integer totalRevenueInCents;
+  private Long totalRevenueInCents;
 
   @JsonProperty( "product_price_in_cents" )
   private Integer productPriceInCents;
@@ -48,7 +49,7 @@ public class Subscription implements Serializable
   private Integer productVersionNumber;
 
   @JsonProperty( "current_period_ends_at" )
-  private Date currentPeriodEndsAt;
+  private ZonedDateTime currentPeriodEndsAt;
 
   @JsonProperty( "next_assessment_at" )
   private ZonedDateTime nextAssessmentAt;
@@ -57,22 +58,22 @@ public class Subscription implements Serializable
   private ZonedDateTime nextBillingAt;
 
   @JsonProperty( "trial_started_at" )
-  private Date trialStartedAt;
+  private ZonedDateTime trialStartedAt;
 
   @JsonProperty( "trial_ended_at" )
-  private Date trialEndedAt;
+  private ZonedDateTime trialEndedAt;
 
   @JsonProperty( "activated_at" )
-  private Date activatedAt;
+  private ZonedDateTime activatedAt;
 
   @JsonProperty( "expires_at" )
-  private Date expiresAt;
+  private ZonedDateTime expiresAt;
 
   @JsonProperty( "created_at" )
-  private Date createdAt;
+  private ZonedDateTime createdAt;
 
   @JsonProperty( "updated_at" )
-  private Date updatedAt;
+  private ZonedDateTime updatedAt;
 
   @JsonProperty( "cancellation_message" )
   private String cancellationMessage;
@@ -84,10 +85,10 @@ public class Subscription implements Serializable
   private Boolean cancelAtEndOfPeriod;
 
   @JsonProperty( "canceled_at" )
-  private Date canceledAt;
+  private ZonedDateTime canceledAt;
 
   @JsonProperty( "current_period_started_at" )
-  private Date currentPeriodStartedAt;
+  private ZonedDateTime currentPeriodStartedAt;
 
   @JsonProperty( "customer_attributes" )
   private Customer customerAttributes;
@@ -107,9 +108,6 @@ public class Subscription implements Serializable
   @JsonProperty( "product_handle" )
   private String productHandle;
 
-  @JsonProperty( "product_id" )
-  private String productId;
-
   @JsonProperty( "signup_payment_id" )
   private Integer signupPaymentId;
 
@@ -117,7 +115,7 @@ public class Subscription implements Serializable
   private String signupRevenue;
 
   @JsonProperty( "delayed_cancel_at" )
-  private Date delayedCancelAt;
+  private ZonedDateTime delayedCancelAt;
 
   @JsonProperty( "coupon_code" )
   private String couponCode;
@@ -136,7 +134,7 @@ public class Subscription implements Serializable
 
   private Customer customer;
 
-  private Product product;
+  private SubscriptionProduct product;
 
   @JsonProperty( "credit_card" )
   private CreditCard creditCard;
@@ -147,11 +145,17 @@ public class Subscription implements Serializable
   @JsonProperty( "referral_code" )
   private String referralCode;
 
-  @JsonProperty( "ref" )
+  @JsonProperty( "reference" )
   private String reference;
 
   @JsonProperty( "next_product_id" )
   private String nextProductId;
+
+  @JsonProperty( "next_product_handle" )
+  private String nextProductHandle;
+
+  @JsonProperty( "next_product_price_point_id" )
+  private Integer nextProductPricePointId;
 
   @JsonProperty( "coupon_use_count" )
   private Integer couponUseCount;
@@ -162,517 +166,4 @@ public class Subscription implements Serializable
   private List<SubscriptionComponent> components;
 
   private Map<String, String> metafields = new HashMap<>();
-
-  public String getId()
-  {
-    return id;
-  }
-
-  public void setId( String id )
-  {
-    this.id = id;
-  }
-
-  public String getState()
-  {
-    return state;
-  }
-
-  public void setState( String state )
-  {
-    this.state = state;
-  }
-
-  public Integer getBalanceInCents()
-  {
-    return balanceInCents;
-  }
-
-  public void setBalanceInCents( Integer balanceInCents )
-  {
-    this.balanceInCents = balanceInCents;
-  }
-
-  public Integer getTotalRevenueInCents()
-  {
-    return totalRevenueInCents;
-  }
-
-  public void setTotalRevenueInCents( Integer totalRevenueInCents )
-  {
-    this.totalRevenueInCents = totalRevenueInCents;
-  }
-
-  public Integer getProductPriceInCents()
-  {
-    return productPriceInCents;
-  }
-
-  public void setProductPriceInCents( Integer productPriceInCents )
-  {
-    this.productPriceInCents = productPriceInCents;
-  }
-
-  public Integer getProductVersionNumber()
-  {
-    return productVersionNumber;
-  }
-
-  public void setProductVersionNumber( Integer productVersionNumber )
-  {
-    this.productVersionNumber = productVersionNumber;
-  }
-
-  public Date getCurrentPeriodEndsAt()
-  {
-    return currentPeriodEndsAt;
-  }
-
-  public void setCurrentPeriodEndsAt( Date currentPeriodEndsAt )
-  {
-    this.currentPeriodEndsAt = currentPeriodEndsAt;
-  }
-
-  public Date getTrialStartedAt()
-  {
-    return trialStartedAt;
-  }
-
-  public void setTrialStartedAt( Date trialStartedAt )
-  {
-    this.trialStartedAt = trialStartedAt;
-  }
-
-  public Date getTrialEndedAt()
-  {
-    return trialEndedAt;
-  }
-
-  public void setTrialEndedAt( Date trialEndedAt )
-  {
-    this.trialEndedAt = trialEndedAt;
-  }
-
-  public Date getActivatedAt()
-  {
-    return activatedAt;
-  }
-
-  public void setActivatedAt( Date activatedAt )
-  {
-    this.activatedAt = activatedAt;
-  }
-
-  public Date getExpiresAt()
-  {
-    return expiresAt;
-  }
-
-  public void setExpiresAt( Date expiresAt )
-  {
-    this.expiresAt = expiresAt;
-  }
-
-  public Date getCreatedAt()
-  {
-    return createdAt;
-  }
-
-  public void setCreatedAt( Date createdAt )
-  {
-    this.createdAt = createdAt;
-  }
-
-  public Date getUpdatedAt()
-  {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt( Date updatedAt )
-  {
-    this.updatedAt = updatedAt;
-  }
-
-  public String getCancellationMessage()
-  {
-    return cancellationMessage;
-  }
-
-  public void setCancellationMessage( String cancellationMessage )
-  {
-    this.cancellationMessage = cancellationMessage;
-  }
-
-  public String getCancellationMethod()
-  {
-    return cancellationMethod;
-  }
-
-  public void setCancellationMethod( String cancellationMethod )
-  {
-    this.cancellationMethod = cancellationMethod;
-  }
-
-  public Boolean getCancelAtEndOfPeriod()
-  {
-    return cancelAtEndOfPeriod;
-  }
-
-  public void setCancelAtEndOfPeriod( Boolean cancelAtEndOfPeriod )
-  {
-    this.cancelAtEndOfPeriod = cancelAtEndOfPeriod;
-  }
-
-  public Date getCanceledAt()
-  {
-    return canceledAt;
-  }
-
-  public void setCanceledAt( Date canceledAt )
-  {
-    this.canceledAt = canceledAt;
-  }
-
-  public Date getCurrentPeriodStartedAt()
-  {
-    return currentPeriodStartedAt;
-  }
-
-  public void setCurrentPeriodStartedAt( Date currentPeriodStartedAt )
-  {
-    this.currentPeriodStartedAt = currentPeriodStartedAt;
-  }
-
-  public String getPreviousState()
-  {
-    return previousState;
-  }
-
-  public void setPreviousState( String previousState )
-  {
-    this.previousState = previousState;
-  }
-
-  public Integer getSignupPaymentId()
-  {
-    return signupPaymentId;
-  }
-
-  public void setSignupPaymentId( Integer signupPaymentId )
-  {
-    this.signupPaymentId = signupPaymentId;
-  }
-
-  public String getSignupRevenue()
-  {
-    return signupRevenue;
-  }
-
-  public void setSignupRevenue( String signupRevenue )
-  {
-    this.signupRevenue = signupRevenue;
-  }
-
-  public Date getDelayedCancelAt()
-  {
-    return delayedCancelAt;
-  }
-
-  public void setDelayedCancelAt( Date delayedCancelAt )
-  {
-    this.delayedCancelAt = delayedCancelAt;
-  }
-
-  public String getCouponCode()
-  {
-    return couponCode;
-  }
-
-  public void setCouponCode( String couponCode )
-  {
-    this.couponCode = couponCode;
-  }
-
-  public String getPaymentCollectionMethod()
-  {
-    return paymentCollectionMethod;
-  }
-
-  public void setPaymentCollectionMethod( String paymentCollectionMethod )
-  {
-    this.paymentCollectionMethod = paymentCollectionMethod;
-  }
-
-  public String getSnapDay()
-  {
-    return snapDay;
-  }
-
-  public void setSnapDay( String snapDay )
-  {
-    this.snapDay = snapDay;
-  }
-
-  public String getReasonCode()
-  {
-    return reasonCode;
-  }
-
-  public void setReasonCode( String reasonCode )
-  {
-    this.reasonCode = reasonCode;
-  }
-
-  public Customer getCustomer()
-  {
-    return customer;
-  }
-
-  public void setCustomer( Customer customer )
-  {
-    this.customer = customer;
-  }
-
-  public Product getProduct()
-  {
-    return product;
-  }
-
-  public void setProduct( Product product )
-  {
-    this.product = product;
-  }
-
-  public CreditCard getCreditCard()
-  {
-    return creditCard;
-  }
-
-  public void setCreditCard( CreditCard creditCard )
-  {
-    this.creditCard = creditCard;
-  }
-
-  public String getPaymentType()
-  {
-    return paymentType;
-  }
-
-  public void setPaymentType( String paymentType )
-  {
-    this.paymentType = paymentType;
-  }
-
-  public String getReferralCode()
-  {
-    return referralCode;
-  }
-
-  public void setReferralCode( String referralCode )
-  {
-    this.referralCode = referralCode;
-  }
-
-  public String getNextProductId()
-  {
-    return nextProductId;
-  }
-
-  public void setNextProductId( String nextProductId )
-  {
-    this.nextProductId = nextProductId;
-  }
-
-  public Integer getCouponUseCount()
-  {
-    return couponUseCount;
-  }
-
-  public void setCouponUseCount( Integer couponUseCount )
-  {
-    this.couponUseCount = couponUseCount;
-  }
-
-  public Integer getCouponUsesAllowed()
-  {
-    return couponUsesAllowed;
-  }
-
-  public void setCouponUsesAllowed( Integer couponUsesAllowed )
-  {
-    this.couponUsesAllowed = couponUsesAllowed;
-  }
-
-  public String getProductId()
-  {
-    return productId;
-  }
-
-  public void setProductId( String productId )
-  {
-    this.productId = productId;
-  }
-
-  public String getCustomerId()
-  {
-    return customerId;
-  }
-
-  public void setCustomerId( String customerId )
-  {
-    this.customerId = customerId;
-  }
-
-  public String getCustomerReference()
-  {
-    return customerReference;
-  }
-
-  public void setCustomerReference( String customerReference )
-  {
-    this.customerReference = customerReference;
-  }
-
-  public String getProductHandle()
-  {
-    return productHandle;
-  }
-
-  public void setProductHandle( String productHandle )
-  {
-    this.productHandle = productHandle;
-  }
-
-  public Customer getCustomerAttributes()
-  {
-    return customerAttributes;
-  }
-
-  public void setCustomerAttributes( Customer customerAttributes )
-  {
-    this.customerAttributes = customerAttributes;
-  }
-
-  public boolean isProductChangeDelayed()
-  {
-    return productChangeDelayed;
-  }
-
-  public void setProductChangeDelayed( boolean productChangeDelayed )
-  {
-    this.productChangeDelayed = productChangeDelayed;
-  }
-
-  public Map<String, String> getMetafields()
-  {
-    return metafields;
-  }
-
-  public void setMetafields( Map<String, String> metafields )
-  {
-    this.metafields = metafields;
-  }
-
-  public List<SubscriptionComponent> getComponents()
-  {
-    return components;
-  }
-
-  public void setComponents( List<SubscriptionComponent> components )
-  {
-    this.components = components;
-  }
-
-  public String getPaymentProfileId()
-  {
-    return paymentProfileId;
-  }
-
-  public void setPaymentProfileId( String paymentProfileId )
-  {
-    this.paymentProfileId = paymentProfileId;
-  }
-
-  public ZonedDateTime getNextBillingAt()
-  {
-    return nextBillingAt;
-  }
-
-  public void setNextBillingAt( ZonedDateTime nextBillingAt )
-  {
-    this.nextBillingAt = nextBillingAt;
-  }
-
-  public ZonedDateTime getNextAssessmentAt()
-  {
-    return nextAssessmentAt;
-  }
-
-  public void setNextAssessmentAt( ZonedDateTime nextAssessmentAt )
-  {
-    this.nextAssessmentAt = nextAssessmentAt;
-  }
-
-  public String getReference()
-  {
-    return reference;
-  }
-
-  public void setReference( String reference )
-  {
-    this.reference = reference;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "Subscription{" +
-            "id='" + id + '\'' +
-            ", state='" + state + '\'' +
-            ", balanceInCents=" + balanceInCents +
-            ", totalRevenueInCents=" + totalRevenueInCents +
-            ", productPriceInCents=" + productPriceInCents +
-            ", productVersionNumber=" + productVersionNumber +
-            ", currentPeriodEndsAt=" + currentPeriodEndsAt +
-            ", nextAssessmentAt=" + nextAssessmentAt +
-            ", nextBillingAt=" + nextBillingAt +
-            ", trialStartedAt=" + trialStartedAt +
-            ", trialEndedAt=" + trialEndedAt +
-            ", activatedAt=" + activatedAt +
-            ", expiresAt=" + expiresAt +
-            ", createdAt=" + createdAt +
-            ", updatedAt=" + updatedAt +
-            ", cancellationMessage='" + cancellationMessage + '\'' +
-            ", cancellationMethod='" + cancellationMethod + '\'' +
-            ", cancelAtEndOfPeriod=" + cancelAtEndOfPeriod +
-            ", canceledAt=" + canceledAt +
-            ", currentPeriodStartedAt=" + currentPeriodStartedAt +
-            ", customerAttributes=" + customerAttributes +
-            ", customerId='" + customerId + '\'' +
-            ", customerReference='" + customerReference + '\'' +
-            ", productChangeDelayed=" + productChangeDelayed +
-            ", previousState='" + previousState + '\'' +
-            ", productHandle='" + productHandle + '\'' +
-            ", productId='" + productId + '\'' +
-            ", signupPaymentId=" + signupPaymentId +
-            ", signupRevenue='" + signupRevenue + '\'' +
-            ", delayedCancelAt=" + delayedCancelAt +
-            ", couponCode='" + couponCode + '\'' +
-            ", paymentCollectionMethod='" + paymentCollectionMethod + '\'' +
-            ", paymentProfileId='" + paymentProfileId + '\'' +
-            ", snapDay='" + snapDay + '\'' +
-            ", reasonCode='" + reasonCode + '\'' +
-            ", customer=" + customer +
-            ", product=" + product +
-            ", creditCard=" + creditCard +
-            ", paymentType='" + paymentType + '\'' +
-            ", referralCode='" + referralCode + '\'' +
-            ", reference='" + reference + '\'' +
-            ", nextProductId='" + nextProductId + '\'' +
-            ", couponUseCount=" + couponUseCount +
-            ", couponUsesAllowed=" + couponUsesAllowed +
-            ", components=" + components +
-            ", metafields=" + metafields +
-            '}';
-  }
 }

@@ -1,8 +1,8 @@
 package com.chargify;
 
-import com.chargify.exceptions.ChargifyException;
-import com.chargify.model.Product;
-import com.chargify.model.ProductFamily;
+import com.chargify.model.PricePointIntervalUnit;
+import com.chargify.model.product.Product;
+import com.chargify.model.product.ProductFamily;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -19,29 +19,29 @@ public class ProductsTest extends ChargifyTest
   @BeforeClass
   public static void setup()
   {
-    productFamilyUnderTest = chargify.createProductFamily( new ProductFamily( randomName() ) );
+    productFamilyUnderTest = chargify.createProductFamily( new ProductFamily( randomName() ) ).block();
 
     productUnderTest = chargify.createProduct( productFamilyUnderTest.getId(),
                                                new Product( randomName(), 0, 1,
-                                                            Product.IntervalUnit.month ) );
+                                                            PricePointIntervalUnit.month ) ).block();
 
-    final Product productWithHandle = new Product( randomName(), 0, 1, Product.IntervalUnit.month );
+    final Product productWithHandle = new Product( randomName(), 0, 1, PricePointIntervalUnit.month );
     productWithHandle.setHandle( randomName() );
-    productWithHandleUnderTest = chargify.createProduct( productFamilyUnderTest.getId(), productWithHandle );
+    productWithHandleUnderTest = chargify.createProduct( productFamilyUnderTest.getId(), productWithHandle ).block();
   }
 
   @AfterClass
   public static void cleanup()
   {
-    chargify.archiveProductById( productUnderTest.getId() );
-    chargify.archiveProductById( productWithHandleUnderTest.getId() );
-    chargify.archiveProductFamilyById( productFamilyUnderTest.getId() );
+    chargify.archiveProductById( productUnderTest.getId() ).block();
+    chargify.archiveProductById( productWithHandleUnderTest.getId() ).block();
+    chargify.archiveProductFamilyById( productFamilyUnderTest.getId() ).block();
   }
 
   @Test
   public void productShouldBeFoundById()
   {
-    final Product product = chargify.findProductById( productUnderTest.getId() );
+    final Product product = chargify.findProductById( productUnderTest.getId() ).block();
 
     Assert.assertNotNull( "Product not found", product );
   }
@@ -49,7 +49,7 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void productShouldNotBeFoundByInvalidId()
   {
-    final Product product = chargify.findProductById( "nonexisting" );
+    final Product product = chargify.findProductById( "nonexistent" ).block();
 
     Assert.assertNull( "Product should not be found by invalid ID", product );
   }
@@ -57,7 +57,7 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void productShouldBeFoundByApiHandle()
   {
-    final Product product = chargify.findProductByApiHandle( productWithHandleUnderTest.getHandle() );
+    final Product product = chargify.findProductByApiHandle( productWithHandleUnderTest.getHandle() ).block();
 
     Assert.assertNotNull( "Product not found", product );
   }
@@ -65,7 +65,7 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void productShouldNotBeFoundByInvalidApiHandle()
   {
-    final Product product = chargify.findProductByApiHandle( productUnderTest.getHandle() );
+    final Product product = chargify.findProductByApiHandle( productUnderTest.getHandle() ).block();
 
     Assert.assertNull( "Product should not be found by invalid ID", product );
   }
@@ -73,31 +73,29 @@ public class ProductsTest extends ChargifyTest
   @Test
   public void readAllShouldRetrieveAtLeastOne()
   {
-    final List<Product> products = chargify.findAllProducts();
+    final List<Product> products = chargify.findAllProducts().collectList().block();
 
-    Assert.assertTrue( "At least one product should be present", products.size() > 0 );
+    Assert.assertFalse( "At least one product should be present", products.isEmpty() );
   }
 
   @Test
   public void readAllByFamilyIdShouldRetrieveAtLeastOne()
   {
-    final List<Product> familyProducts = chargify.findProductsByProductFamilyId( productFamilyUnderTest.getId() );
+    final List<Product> familyProducts = chargify.findProductsByProductFamilyId( productFamilyUnderTest.getId() ).collectList().block();
 
-    Assert.assertTrue( "At least one product should be present in the family",
-                       familyProducts.size() > 0 );
+    Assert.assertFalse( "At least one product should be present in the family", familyProducts.isEmpty() );
   }
 
-  // TODO: see issue https://chargify.zendesk.com/hc/en-us/requests/69553
-  @Test( expected = ChargifyException.class )
-  public void readByNonExistingFamilyShouldThrowException()
+  @Test
+  public void readByNonExistingFamilyShouldReturnNull()
   {
-    chargify.findProductFamilyById( "nonexisting" );
+    Assert.assertNull( chargify.findProductFamilyById( "nonexistent" ).block() );
   }
 
   @Test
   public void archiveNonExisting()
   {
-    final Product archivedProduct = chargify.archiveProductById( "nonexisting" );
+    final Product archivedProduct = chargify.archiveProductById( "nonexistent" ).block();
 
     Assert.assertNull( "Non existing product has been archived", archivedProduct );
   }

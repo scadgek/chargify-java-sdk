@@ -20,9 +20,13 @@ package com.chargify.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+@NoArgsConstructor
+@Data
 @JsonInclude( JsonInclude.Include.NON_NULL )
 public class CreditCard implements Serializable
 {
@@ -44,10 +48,10 @@ public class CreditCard implements Serializable
   private String cardType;
 
   @JsonProperty( "expiration_month" )
-  private String expirationMonth;
+  private Integer expirationMonth;
 
   @JsonProperty( "expiration_year" )
-  private String expirationYear;
+  private Integer expirationYear;
 
   @JsonProperty( "billing_address" )
   private String billingAddress;
@@ -78,209 +82,4 @@ public class CreditCard implements Serializable
 
   @JsonProperty( "customer_id" )
   private String customerId;
-
-  public String getId()
-  {
-    return id;
-  }
-
-  public void setId( String id )
-  {
-    this.id = id;
-  }
-
-  public String getCardType()
-  {
-    return cardType;
-  }
-
-  public void setCardType( String cardType )
-  {
-    this.cardType = cardType;
-  }
-
-  public String getExpirationMonth()
-  {
-    return expirationMonth;
-  }
-
-  public void setExpirationMonth( String expirationMonth )
-  {
-    this.expirationMonth = expirationMonth;
-  }
-
-  public String getExpirationYear()
-  {
-    return expirationYear;
-  }
-
-  public void setExpirationYear( String expirationYear )
-  {
-    this.expirationYear = expirationYear;
-  }
-
-  public String getFirstName()
-  {
-    return firstName;
-  }
-
-  public void setFirstName( String firstName )
-  {
-    this.firstName = firstName;
-  }
-
-  public String getLastName()
-  {
-    return lastName;
-  }
-
-  public void setLastName( String lastName )
-  {
-    this.lastName = lastName;
-  }
-
-  public String getMaskedCardNumber()
-  {
-    return maskedCardNumber;
-  }
-
-  public void setMaskedCardNumber( String maskedCardNumber )
-  {
-    this.maskedCardNumber = maskedCardNumber;
-  }
-
-  public String getCustomerId()
-  {
-    return customerId;
-  }
-
-  public void setCustomerId( String customerId )
-  {
-    this.customerId = customerId;
-  }
-
-  public String getCustomerVaultToken()
-  {
-    return customerVaultToken;
-  }
-
-  public void setCustomerVaultToken( String customerVaultToken )
-  {
-    this.customerVaultToken = customerVaultToken;
-  }
-
-  public String getVaultToken()
-  {
-    return vaultToken;
-  }
-
-  public void setVaultToken( String vaultToken )
-  {
-    this.vaultToken = vaultToken;
-  }
-
-  public String getCurrentVault()
-  {
-    return currentVault;
-  }
-
-  public void setCurrentVault( String currentVault )
-  {
-    this.currentVault = currentVault;
-  }
-
-  public String getBillingAddress()
-  {
-    return billingAddress;
-  }
-
-  public void setBillingAddress( String billingAddress )
-  {
-    this.billingAddress = billingAddress;
-  }
-
-  public String getBillingAddress2()
-  {
-    return billingAddress2;
-  }
-
-  public void setBillingAddress2( String billingAddress2 )
-  {
-    this.billingAddress2 = billingAddress2;
-  }
-
-  public String getBillingCity()
-  {
-    return billingCity;
-  }
-
-  public void setBillingCity( String billingCity )
-  {
-    this.billingCity = billingCity;
-  }
-
-  public String getBillingState()
-  {
-    return billingState;
-  }
-
-  public void setBillingState( String billingState )
-  {
-    this.billingState = billingState;
-  }
-
-  public String getBillingZip()
-  {
-    return billingZip;
-  }
-
-  public void setBillingZip( String billingZip )
-  {
-    this.billingZip = billingZip;
-  }
-
-  public String getBillingCountry()
-  {
-    return billingCountry;
-  }
-
-  public void setBillingCountry( String billingCountry )
-  {
-    this.billingCountry = billingCountry;
-  }
-
-  public String getPaymentType()
-  {
-    return paymentType;
-  }
-
-  public void setPaymentType( String paymentType )
-  {
-    this.paymentType = paymentType;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "CreditCard{" +
-            "id='" + id + '\'' +
-            ", paymentType='" + paymentType + '\'' +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", maskedCardNumber='" + maskedCardNumber + '\'' +
-            ", cardType='" + cardType + '\'' +
-            ", expirationMonth='" + expirationMonth + '\'' +
-            ", expirationYear='" + expirationYear + '\'' +
-            ", billingAddress='" + billingAddress + '\'' +
-            ", billingAddress2='" + billingAddress2 + '\'' +
-            ", billingCity='" + billingCity + '\'' +
-            ", billingState='" + billingState + '\'' +
-            ", billingCountry='" + billingCountry + '\'' +
-            ", billingZip='" + billingZip + '\'' +
-            ", currentVault='" + currentVault + '\'' +
-            ", vaultToken='" + vaultToken + '\'' +
-            ", customerVaultToken='" + customerVaultToken + '\'' +
-            ", customerId='" + customerId + '\'' +
-            '}';
-  }
 }

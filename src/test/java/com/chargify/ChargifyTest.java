@@ -16,7 +16,7 @@ public abstract class ChargifyTest
                                           "-Dchargify.domain=XXX -Dchargify.apikey=YYY" );
     }
 
-    chargify = new ChargifyService( domain, apiKey );
+    chargify = new ChargifyService( domain, apiKey, 5000, 5000 );
   }
 
   protected static String randomName()
